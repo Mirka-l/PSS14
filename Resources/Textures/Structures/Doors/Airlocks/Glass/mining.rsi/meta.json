@@ -1,12 +1,18 @@
 {
   "version": 1,
   "license": "CC-BY-SA-3.0",
-  "copyright": "Taken at https://github.com/ParadiseSS13/Paradise/commit/9312f1fb7dcdf1c195e255a528f31092613fb60d",
+  "copyright": "Taken at https://github.com/ParadiseSS13/Paradise/commit/9312f1fb7dcdf1c195e255a528f31092613fb60d; Door states taken from Paradise SS220 at commit https://github.com/ss220club/Paradise-SS220/commit/967a9a57939c1ade8e594d7b3b462ccdee2ae9ea; glass overlays taken from Paradise SS220 at commit https://github.com/ss220club/Paradise-SS220/commit/66061f499eea711b1d0884f73aa90ed73d03195e",
   "size": {
     "x": 32,
     "y": 32
   },
   "states": [
+    {
+      "name": "powered_close"
+    },
+    {
+      "name": "powered_open"
+    },
     {
       "name": "assembly"
     },
@@ -27,8 +33,7 @@
           0.1,
           0.1,
           0.1,
-          0.05,
-          0.05,
+          0.1,
           0.1
         ]
       ]
@@ -61,20 +66,14 @@
       ]
     },
     {
-      "name": "open",
-      "delays": [
-        [
-          1
-        ]
-      ]
+      "name": "open"
     },
     {
       "name": "opening",
       "delays": [
         [
           0.1,
-          0.05,
-          0.05,
+          0.1,
           0.1,
           0.1,
           0.1,

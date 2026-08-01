@@ -1,57 +1,50 @@
 {
-    "version": 1,
-    "license": "CC-BY-SA-3.0",
-    "copyright": "Made by brainfood1183 (github) for ss14",
-    "size": {
-        "x": 32,
-        "y": 32
+  "version": 1,
+  "license": "CC-BY-SA-3.0",
+  "copyright": "Made by brainfood1183 (github) for ss14; Door states taken from Paradise SS220 at commit https://github.com/ss220club/Paradise-SS220/commit/967a9a57939c1ade8e594d7b3b462ccdee2ae9ea",
+  "size": {
+    "x": 32,
+    "y": 32
+  },
+  "states": [
+    {
+      "name": "closed",
+      "directions": 1
     },
-    "states": [
-        {
-            "name": "closed",
-            "directions": 1,
-            "delays": [
-                [
-                    1.0
-                ]
-            ]
-        },
-        {
-            "name": "closing",
-            "directions": 1,
-            "delays": [
-                [
-                    0.05,
-                    0.05,
-                    0.05,
-                    0.05,
-                    0.05,
-                    0.05
-                ]
-            ]
-        },
-        {
-            "name": "open",
-            "directions": 1,
-            "delays": [
-                [
-                    1.0
-                ]
-            ]
-        },
-        {
-            "name": "opening",
-            "directions": 1,
-            "delays": [
-                [
-                    0.05,
-                    0.05,
-                    0.05,
-                    0.05,
-                    0.05,
-                    0.05
-                ]
-            ]
-        }
-    ]
+    {
+      "name": "closing",
+      "directions": 1,
+      "delays": [
+        [
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "open",
+      "directions": 1
+    },
+    {
+      "name": "opening",
+      "directions": 1,
+      "delays": [
+        [
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1,
+          0.1
+        ]
+      ]
+    },
+    {
+      "name": "assembly"
+    }
+  ]
 }

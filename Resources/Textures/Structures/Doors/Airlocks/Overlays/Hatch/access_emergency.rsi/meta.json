@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "license": "CC-BY-SA-3.0",
+  "copyright": "Made by Mirka-i and Dr_smail for Paradise 14",
+  "size": {
+    "x": 32,
+    "y": 32
+  },
+  "states": [
+    {
+      "name": "closed"
+    },
+    {
+      "name": "closing"
+    },
+    {
+      "name": "opening"
+    },
+    {
+      "name": "open",
+      "delays": [
+        [
+          0.4,
+          0.4
+        ]
+      ]
+    }
+  ]
+}

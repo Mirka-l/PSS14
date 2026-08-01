@@ -8,6 +8,11 @@
   copyright: "Created by dotY21."
   source: "https://freesound.org/people/dotY21/sounds/330726/"
 
+- files: ["blastdoor.ogg"]
+  license: "CC-BY-SA-3.0"
+  copyright: "Taken from Paradise SS220."
+  source: "https://github.com/ss220club/Paradise-SS220/commit/6b2e29fa7fa0bbf27bc7a20d050dace48242bbc8"
+
 - files: ["buzz_loop.ogg"]
   license: "CC0-1.0"
   copyright: "Created by Duasun, converted to OGG by EmoGarbage404 (github)."

@@ -1,7 +1,7 @@
 {
   "version": 1,
   "license": "CC-BY-SA-3.0",
-  "copyright": "Taken from paradise station at commit https://github.com/ParadiseSS13/Paradise/commit/9312f1fb7dcdf1c195e255a528f31092613fb60d",
+  "copyright": "Taken from paradise station at commit https://github.com/ParadiseSS13/Paradise/commit/9312f1fb7dcdf1c195e255a528f31092613fb60d; Door states taken from Paradise SS220 at commit https://github.com/ss220club/Paradise-SS220/commit/967a9a57939c1ade8e594d7b3b462ccdee2ae9ea; glass overlays taken from Paradise SS220 at commit https://github.com/ss220club/Paradise-SS220/commit/66061f499eea711b1d0884f73aa90ed73d03195e",
   "size": {
     "x": 32,
     "y": 32
@@ -11,13 +11,7 @@
       "name": "assembly"
     },
     {
-      "name": "bolted_unlit"
-    },
-    {
       "name": "closed"
-    },
-    {
-      "name": "closed_unlit"
     },
     {
       "name": "closing",
@@ -25,32 +19,6 @@
         [
           0.1,
           0.1,
-          0.07,
-          0.07,
-          0.07,
-          0.2
-        ]
-      ]
-    },
-    {
-      "name": "closing_unlit",
-      "delays": [
-        [
-          0.1,
-          0.1,
-          0.07,
-          0.07,
-          0.07,
-          0.2
-        ]
-      ]
-    },
-    {
-      "name": "deny_unlit",
-      "delays": [
-        [
-          0.1,
-          0.1,
           0.1,
           0.1,
           0.1,
@@ -59,12 +27,7 @@
       ]
     },
     {
-      "name": "open",
-      "delays": [
-        [
-          1
-        ]
-      ]
+      "name": "open"
     },
     {
       "name": "opening",
@@ -72,122 +35,10 @@
         [
           0.1,
           0.1,
-          0.07,
-          0.07,
-          0.07,
-          0.2
-        ]
-      ]
-    },
-    {
-      "name": "opening_unlit",
-      "delays": [
-        [
-          0.1,
-          0.1,
-          0.07,
-          0.07,
-          0.07,
-          0.2
-        ]
-      ]
-    },
-    {
-      "name": "panel_closing",
-      "delays": [
-        [
-          0.1,
-          0.1,
-          0.07,
-          0.07,
-          0.07,
-          0.2
-        ]
-      ]
-    },
-    {
-      "name": "panel_open",
-      "delays": [
-        [
-          1
-        ]
-      ]
-    },
-    {
-      "name": "panel_opening",
-      "delays": [
-        [
-          0.1,
-          0.1,
-          0.07,
-          0.07,
-          0.07,
-          0.2
-        ]
-      ]
-    },
-    {
-      "name": "sparks",
-      "delays": [
-        [
-          0.1,
-          0.1,
           0.1,
           0.1,
           0.1,
           0.1
-        ]
-      ]
-    },
-    {
-      "name": "sparks_broken",
-      "delays": [
-        [
-          0.1,
-          0.1,
-          0.1,
-          0.1,
-          0.1,
-          0.1
-        ]
-      ]
-    },
-    {
-      "name": "sparks_damaged",
-      "delays": [
-        [
-          0.1,
-          0.1,
-          0.1,
-          0.1,
-          0.1,
-          0.1,
-          1.7
-        ]
-      ]
-    },
-    {
-      "name": "sparks_open",
-      "delays": [
-        [
-          0.1,
-          0.1,
-          0.1,
-          0.1,
-          0.1,
-          0.1
-        ]
-      ]
-    },
-    {
-      "name": "welded"
-    },
-    {
-      "name": "emergency_unlit",
-      "delays": [
-        [
-          0.4,
-          0.4
         ]
       ]
     }

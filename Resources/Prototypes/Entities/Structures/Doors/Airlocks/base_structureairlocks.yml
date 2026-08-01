@@ -1,6 +1,118 @@
 ﻿- type: entity
+  id: AirlockVisualsStandard
+  abstract: true
+  components:
+  - type: Sprite
+    sprite: Structures/Doors/Airlocks/Standard/basic.rsi
+    snapCardinals: true
+    layers:
+    - state: closed
+      map: ["enum.DoorVisualLayers.Base"]
+    - map: ["enum.DoorVisualLayers.BasePowered"]
+      shader: unshaded
+      visible: false
+    - map: ["enum.DoorVisualLayers.BaseUnlit"]
+      shader: unshaded
+      visible: false
+    - map: ["enum.WeldableLayers.BaseWelded"]
+    - map: ["enum.DoorVisualLayers.BaseBolted"]
+      shader: unshaded
+    - map: ["enum.DoorVisualLayers.BaseEmergencyAccess"]
+      shader: unshaded
+    - map: ["enum.WiresVisualLayers.MaintenancePanel"]
+    - map: ["enum.DoorVisualLayers.BaseDeny"]
+      shader: unshaded
+      visible: false
+    - state: electrified_ai
+      sprite: Interface/Misc/ai_hud.rsi
+      shader: unshaded
+      visible: false
+      map: ["enum.ElectrifiedLayers.HUD"]
+    - state: electrified
+      sprite: Effects/electricity.rsi
+      shader: unshaded
+      visible: false
+      map: ["enum.ElectrifiedLayers.Sparks"]
+    - map: ["enum.DoorVisualLayers.BaseEmagging"]
+      shader: unshaded
+      visible: false
+
+  - type: AirlockVisuals
+    powered: { sprite: Structures/Doors/Airlocks/Overlays/Standard/powered.rsi, state: closed }
+    unlit: { sprite: Structures/Doors/Airlocks/Overlays/Standard/unlit.rsi, state: closed }
+    welded: { sprite: Structures/Doors/Airlocks/Overlays/Standard/welded.rsi, state: closed }
+    bolted: { sprite: Structures/Doors/Airlocks/Overlays/Standard/bolted.rsi, state: closed }
+    emergencyAccess: { sprite: Structures/Doors/Airlocks/Overlays/Standard/access_emergency.rsi, state: closed }
+    panel: { sprite: Structures/Doors/Airlocks/Overlays/Standard/panel.rsi, state: closed }
+    deny: { sprite: Structures/Doors/Airlocks/Overlays/Standard/access_deny.rsi, state: closed }
+    emagging: { sprite: Structures/Doors/Airlocks/Overlays/Standard/effects.rsi, state: sparks }
+
+  - type: GenericVisualizer
+    visuals:
+      enum.DoorVisuals.State:
+        enum.DoorVisualLayers.BasePowered:
+          Closed: { state: closed }
+          Closing: { state: closing }
+          Open: { state: open }
+          Opening: { state: opening }
+        enum.DoorVisualLayers.BaseUnlit:
+          Closed: { state: closed }
+          Closing: { state: closing }
+          Open: { state: open }
+          Opening: { state: opening }
+        enum.WiresVisualLayers.MaintenancePanel:
+          Closed: { state: closed }
+          Closing: { state: closing }
+          Open: { state: open }
+          Opening: { state: opening }
+      enum.DoorVisuals.IndicatorMode:
+        enum.DoorVisualLayers.BasePowered:
+          Hidden: { visible: false }
+          Powered: { visible: true }
+          Unlit: { visible: false }
+          Bolted: { visible: false }
+          Emergency: { visible: false }
+          Denying: { visible: false }
+        enum.DoorVisualLayers.BaseUnlit:
+          Hidden: { visible: false }
+          Powered: { visible: false }
+          Unlit: { visible: true }
+          Bolted: { visible: false }
+          Emergency: { visible: false }
+          Denying: { visible: false }
+        enum.DoorVisualLayers.BaseBolted:
+          Hidden: { visible: false }
+          Powered: { visible: false }
+          Unlit: { visible: false }
+          Bolted: { visible: true }
+          Emergency: { visible: false }
+          Denying: { visible: false }
+        enum.DoorVisualLayers.BaseEmergencyAccess:
+          Hidden: { visible: false }
+          Powered: { visible: false }
+          Unlit: { visible: false }
+          Bolted: { visible: false }
+          Emergency: { visible: true }
+          Denying: { visible: false }
+        enum.DoorVisualLayers.BaseDeny:
+          Hidden: { visible: false }
+          Powered: { visible: false }
+          Unlit: { visible: false }
+          Bolted: { visible: false }
+          Emergency: { visible: false }
+          Denying: { visible: true }
+      enum.ElectrifiedVisuals.ShowSparks:
+        enum.ElectrifiedLayers.Sparks:
+          True: { visible: True }
+          False: { visible: False }
+      enum.WiresVisuals.MaintenancePanelState:
+        enum.WiresVisualLayers.MaintenancePanel:
+          True: { visible: true }
+          False: { visible: false }
+
+- type: entity
   id: Airlock
-  parent: BaseStructure
+  parent: [AirlockVisualsStandard, BaseStructure]
   name: airlock
   description: It opens, it closes, and maybe crushes you.
   components:
@@ -15,40 +127,6 @@
         path:
           "/Audio/Weapons/smash.ogg"
   - type: InteractionOutline
-  - type: Sprite
-    sprite: Structures/Doors/Airlocks/Standard/basic.rsi
-    snapCardinals: true
-    layers:
-    - state: closed
-      map: ["enum.DoorVisualLayers.Base"]
-    - state: closed_unlit
-      shader: unshaded
-      map: ["enum.DoorVisualLayers.BaseUnlit"]
-      visible: false
-    - state: welded
-      map: ["enum.WeldableLayers.BaseWelded"]
-    - state: bolted_unlit
-      shader: unshaded
-      map: ["enum.DoorVisualLayers.BaseBolted"]
-    - state: emergency_unlit
-      map: ["enum.DoorVisualLayers.BaseEmergencyAccess"]
-      shader: unshaded
-    - state: panel_open
-      map: ["enum.WiresVisualLayers.MaintenancePanel"]
-    - state: electrified_ai
-      sprite: Interface/Misc/ai_hud.rsi
-      shader: unshaded
-      visible: false
-      map: ["enum.ElectrifiedLayers.HUD"]
-    - state: electrified
-      sprite: Effects/electricity.rsi
-      shader: unshaded
-      visible: false
-      map: ["enum.ElectrifiedLayers.Sparks"]
-    - state: sparks
-      map: ["enum.DoorVisualLayers.BaseEmagging"]
-      shader: unshaded
-      visible: false
   - type: AnimationPlayer
   - type: Physics
   - type: Fixtures
@@ -90,13 +168,6 @@
   - type: NavMapDoor
   - type: DoorBolt
   - type: Appearance
-  - type: GenericVisualizer
-    visuals:
-      enum.ElectrifiedVisuals.ShowSparks:
-        enum.ElectrifiedLayers.Sparks:
-          True: { visible: True }
-          False: { visible: False }
-  - type: WiresVisuals
   - type: ElectrocutionHUDVisuals
   - type: ApcPowerReceiver
     powerLoad: 20
@@ -241,3 +312,73 @@
       # This tag is used to nagivate the Airlock construction graph. It's needed because the construction graph is shared between Airlock, AirlockGlass, and HighSecDoor
       - DoorRemoteWhitelist
       # This tag is used by door remotes to allow or not a door remote to normally be able to interact with a door
+
+# Temporary visual compatibility for airlocks whose overlays have not been
+# moved to a shared RSI yet. Add this before the functional airlock parent.
+- type: entity
+  id: AirlockLegacy
+  abstract: true
+  components:
+  - type: LegacyDoorVisuals
+  - type: WiresVisuals
+  - type: GenericVisualizer
+    visuals:
+      enum.ElectrifiedVisuals.ShowSparks:
+        enum.ElectrifiedLayers.Sparks:
+          True: { visible: True }
+          False: { visible: False }
+  - type: Sprite
+    layers:
+    - state: closed
+      map: ["enum.DoorVisualLayers.Base"]
+    - state: powered_close
+      map: ["enum.DoorVisualLayers.BasePowered"]
+      shader: unshaded
+      visible: false
+    - state: closed_unlit
+      shader: unshaded
+      map: ["enum.DoorVisualLayers.BaseUnlit"]
+      visible: false
+    - state: welded
+      map: ["enum.WeldableLayers.BaseWelded"]
+    - state: bolted_unlit
+      shader: unshaded
+      map: ["enum.DoorVisualLayers.BaseBolted"]
+    - state: emergency_unlit
+      map: ["enum.DoorVisualLayers.BaseEmergencyAccess"]
+      shader: unshaded
+    - state: panel_open
+      map: ["enum.WiresVisualLayers.MaintenancePanel"]
+    - state: electrified_ai
+      sprite: Interface/Misc/ai_hud.rsi
+      shader: unshaded
+      visible: false
+      map: ["enum.ElectrifiedLayers.HUD"]
+    - state: electrified
+      sprite: Effects/electricity.rsi
+      shader: unshaded
+      visible: false
+      map: ["enum.ElectrifiedLayers.Sparks"]
+    - state: sparks
+      map: ["enum.DoorVisualLayers.BaseEmagging"]
+      shader: unshaded
+      visible: false
+
+- type: entity
+  parent: Airlock
+  id: AirlockHatch
+  name: airtight hatch
+  components:
+  - type: Sprite
+    sprite: Structures/Doors/Airlocks/Standard/hatch.rsi
+  - type: AirlockVisuals
+    powered: { sprite: Structures/Doors/Airlocks/Overlays/Hatch/powered.rsi, state: closed }
+    unlit: { sprite: Structures/Doors/Airlocks/Overlays/Hatch/unlit.rsi, state: closed }
+    welded: { sprite: Structures/Doors/Airlocks/Overlays/Hatch/common.rsi, state: welded }
+    bolted: { sprite: Structures/Doors/Airlocks/Overlays/Hatch/common.rsi, state: bolted_unlit }
+    emergencyAccess: { sprite: Structures/Doors/Airlocks/Overlays/Hatch/common.rsi, state: emergency_unlit }
+    panel: { sprite: Structures/Doors/Airlocks/Overlays/Hatch/panel.rsi, state: closed }
+    deny: { sprite: Structures/Doors/Airlocks/Overlays/Hatch/deny.rsi, state: deny }
+    emagging: { sprite: Structures/Doors/Airlocks/Overlays/Hatch/common.rsi, state: sparks }
+  - type: Paintable
+    group: null
