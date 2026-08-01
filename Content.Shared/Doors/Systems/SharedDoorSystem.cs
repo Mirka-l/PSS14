@@ -46,6 +46,7 @@ public abstract partial class SharedDoorSystem : EntitySystem
     [Dependency] protected SharedPopupSystem Popup = default!;
     [Dependency] private SharedMapSystem _mapSystem = default!;
     [Dependency] private SharedPowerReceiverSystem _powerReceiver = default!;
+    [Dependency] private WeldableSystem _weldableSystem = default!;
 
     public static readonly ProtoId<TagPrototype> DoorBumpTag = "DoorBumpOpener";
 
@@ -74,7 +75,6 @@ public abstract partial class SharedDoorSystem : EntitySystem
         SubscribeLocalEvent<DoorComponent, BeforePryEvent>(OnBeforePry);
         SubscribeLocalEvent<DoorComponent, PriedEvent>(OnAfterPry);
         SubscribeLocalEvent<DoorComponent, WeldableAttemptEvent>(OnWeldAttempt);
-        SubscribeLocalEvent<DoorComponent, WeldableChangedEvent>(OnWeldChanged);
         SubscribeLocalEvent<DoorComponent, GetPryTimeModifierEvent>(OnPryTimeModifier);
         SubscribeLocalEvent<DoorComponent, GotEmaggedEvent>(OnEmagged);
     }
@@ -126,7 +126,7 @@ public abstract partial class SharedDoorSystem : EntitySystem
         if (!airlock.Powered)
             return;
 
-        if (door.State != DoorState.Closed)
+        if (door.State != DoorState.Closed || IsWelded(uid))
             return;
 
         if (!SetState(uid, DoorState.Emagging, door))
@@ -219,7 +219,7 @@ public abstract partial class SharedDoorSystem : EntitySystem
 
     private void OnBeforePry(EntityUid uid, DoorComponent door, ref BeforePryEvent args)
     {
-        if (door.State == DoorState.Welded || !door.CanPry)
+        if (IsWelded(uid) || !door.CanPry)
             args.Cancelled = true;
     }
 
@@ -247,18 +247,19 @@ public abstract partial class SharedDoorSystem : EntitySystem
             args.Cancel();
             return;
         }
-        if (component.State != DoorState.Closed && component.State != DoorState.Welded)
+        if (component.State != DoorState.Closed)
         {
             args.Cancel();
         }
     }
 
-    private void OnWeldChanged(EntityUid uid, DoorComponent component, ref WeldableChangedEvent args)
+    /// <summary>
+    ///     Returns true if the door is welded shut.
+    /// </summary>
+    /// <param name="uid"> The uid of the door</param>
+    public bool IsWelded(EntityUid uid)
     {
-        if (component.State == DoorState.Closed)
-            SetState(uid, DoorState.Welded, component);
-        else if (component.State == DoorState.Welded)
-            SetState(uid, DoorState.Closed, component);
+        return _weldableSystem.IsWelded(uid);
     }
 
     /// <summary>
@@ -277,9 +278,6 @@ public abstract partial class SharedDoorSystem : EntitySystem
         var ev = new BeforeDoorDeniedEvent();
         RaiseLocalEvent(uid, ev);
         if (ev.Cancelled)
-            return;
-
-        if (!SetState(uid, DoorState.Denying, door))
             return;
 
         var audioParams = door.DenySound?.Params ?? AudioParams.Default;
@@ -329,7 +327,7 @@ public abstract partial class SharedDoorSystem : EntitySystem
         if (!Resolve(uid, ref door))
             return false;
 
-        if (door.State == DoorState.Welded)
+        if (IsWelded(uid))
             return false;
 
         if (Paused(uid))
@@ -404,7 +402,7 @@ public abstract partial class SharedDoorSystem : EntitySystem
         if (!Resolve(uid, ref door, ref airlock))
             return false;
 
-        if (IsBolted(uid) || !airlock.Powered || door.State != DoorState.Closed)
+        if (IsBolted(uid) || IsWelded(uid) || !airlock.Powered || door.State != DoorState.Closed)
         {
             return false;
         }
@@ -439,9 +437,7 @@ public abstract partial class SharedDoorSystem : EntitySystem
         if (!Resolve(uid, ref door))
             return false;
 
-        // since both closing/closed and welded are door states, we need to prevent 'closing'
-        // a welded door or else there will be weird state bugs
-        if (door.State is DoorState.Welded or DoorState.Closed)
+        if (door.State == DoorState.Closed)
             return false;
 
         if (Paused(uid))
@@ -709,7 +705,7 @@ public abstract partial class SharedDoorSystem : EntitySystem
         if (!Resolve(uid, ref door, false))
             return;
 
-        // If the door is not currently just open or closed, it is busy doing something else (or welded shut). So in
+        // If the door is not currently just open or closed, it is busy doing something. So in
         // that case we do nothing.
         if (door.State != DoorState.Open && door.State != DoorState.Closed)
             return;
@@ -825,11 +821,6 @@ public abstract partial class SharedDoorSystem : EntitySystem
                     // The door failed to close (blocked?). Try again in one second.
                     door.NextStateChange = time + TimeSpan.FromSeconds(1);
                 }
-                break;
-
-            case DoorState.Welded:
-                // A welded door? This should never have been active in the first place.
-                Log.Error($"Welded door was in the list of active doors. Door: {ToPrettyString(ent)}");
                 break;
         }
     }

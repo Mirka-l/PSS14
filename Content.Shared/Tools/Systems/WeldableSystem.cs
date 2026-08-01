@@ -21,10 +21,16 @@ public sealed partial class WeldableSystem : EntitySystem
     public override void Initialize()
     {
         base.Initialize();
+        SubscribeLocalEvent<WeldableComponent, MapInitEvent>(OnMapInit);
         SubscribeLocalEvent<WeldableComponent, InteractUsingEvent>(OnInteractUsing);
         SubscribeLocalEvent<WeldableComponent, WeldFinishedEvent>(OnWeldFinished);
         SubscribeLocalEvent<LayerChangeOnWeldComponent, WeldableChangedEvent>(OnWeldChanged);
         SubscribeLocalEvent<WeldableComponent, ExaminedEvent>(OnExamine);
+    }
+
+    private void OnMapInit(Entity<WeldableComponent> ent, ref MapInitEvent args)
+    {
+        ApplyWeldedState(ent);
     }
 
     public bool IsWelded(EntityUid uid, WeldableComponent? component = null)
@@ -117,7 +123,13 @@ public sealed partial class WeldableSystem : EntitySystem
         if (_query.Resolve(uid, ref component))
             _appearance.SetData(uid, WeldableVisuals.IsWelded, component.IsWelded);
     }
+    private void ApplyWeldedState(Entity<WeldableComponent> ent)
+    {
+        var ev = new WeldableChangedEvent(ent.Comp.IsWelded);
 
+        RaiseLocalEvent(ent.Owner, ref ev);
+        UpdateAppearance(ent.Owner, ent.Comp);
+    }
     public void SetWeldedState(EntityUid uid, bool state, WeldableComponent? component = null)
     {
         if (!_query.Resolve(uid, ref component))
@@ -127,11 +139,9 @@ public sealed partial class WeldableSystem : EntitySystem
             return;
 
         component.IsWelded = state;
-        var ev = new WeldableChangedEvent(component.IsWelded);
-
-        RaiseLocalEvent(uid, ref ev);
-        UpdateAppearance(uid, component);
-        Dirty(uid, component);
+        Entity<WeldableComponent> weldedEntity = (uid, component);
+        ApplyWeldedState(weldedEntity);
+        Dirty(weldedEntity);
     }
 
     public void SetWeldingTime(EntityUid uid, TimeSpan time, WeldableComponent? component = null)

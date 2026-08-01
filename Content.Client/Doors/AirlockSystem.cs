@@ -25,12 +25,6 @@ public sealed partial class AirlockSystem : SharedAirlockSystem
         if (!TryComp<DoorComponent>(uid, out var door))
             return;
 
-        if (comp.OpenUnlitVisible) // Otherwise there are flashes of the fallback sprite between clicking on the door and the door closing animation starting.
-        {
-            door.OpenSpriteStates.Add((DoorVisualLayers.BaseUnlit, comp.OpenSpriteState));
-            door.ClosedSpriteStates.Add((DoorVisualLayers.BaseUnlit, comp.ClosedSpriteState));
-        }
-
         ((Animation)door.OpeningAnimation).AnimationTracks.Add(new AnimationTrackSpriteFlick()
         {
             LayerKey = DoorVisualLayers.BaseUnlit,
@@ -95,7 +89,7 @@ public sealed partial class AirlockSystem : SharedAirlockSystem
             && powered)
         {
             boltedVisible = _appearanceSystem.TryGetData<bool>(uid, DoorVisuals.BoltLights, out var lights, args.Component)
-                            && lights && (state == DoorState.Closed || state == DoorState.Welded);
+                            && lights && state == DoorState.Closed;
 
             emergencyLightsVisible = _appearanceSystem.TryGetData<bool>(uid, DoorVisuals.EmergencyLights, out var eaLights, args.Component) && eaLights;
             unlitVisible =
