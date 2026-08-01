@@ -9,20 +9,21 @@
     layers:
     - state: closed
       map: ["enum.DoorVisualLayers.Base"]
-    - state: closed_unlit
+    - map: ["enum.DoorVisualLayers.BasePowered"]
       shader: unshaded
-      map: ["enum.DoorVisualLayers.BaseUnlit"]
       visible: false
-    - state: welded
-      map: ["enum.WeldableLayers.BaseWelded"]
-    - state: bolted_unlit
+    - map: ["enum.DoorVisualLayers.BaseAccessGranted"]
       shader: unshaded
-      map: ["enum.DoorVisualLayers.BaseBolted"]
-    - state: emergency_unlit
+      visible: false
+    - map: ["enum.WeldableLayers.BaseWelded"]
+    - map: ["enum.DoorVisualLayers.BaseBolted"]
       shader: unshaded
-      map: ["enum.DoorVisualLayers.BaseEmergencyAccess"]
-    - state: panel_open
-      map: ["enum.WiresVisualLayers.MaintenancePanel"]
+    - map: ["enum.DoorVisualLayers.BaseEmergencyAccess"]
+      shader: unshaded
+    - map: ["enum.WiresVisualLayers.MaintenancePanel"]
+    - map: ["enum.DoorVisualLayers.BaseDeny"]
+      shader: unshaded
+      visible: false
     - state: electrified_ai
       sprite: Interface/Misc/ai_hud.rsi
       shader: unshaded
@@ -33,6 +34,12 @@
       shader: unshaded
       visible: false
       map: ["enum.ElectrifiedLayers.Sparks"]
+    - state: sparks
+      sprite: Structures/Doors/Airlocks/Overlays/Windoor/effects.rsi
+      map: ["enum.DoorVisualLayers.BaseEmagging"]
+      shader: unshaded
+      visible: false
+      loop: false
   - type: Destructible
     thresholds:
     - trigger:

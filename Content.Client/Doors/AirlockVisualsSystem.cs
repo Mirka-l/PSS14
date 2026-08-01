@@ -28,7 +28,7 @@ public sealed partial class AirlockVisualsSystem : EntitySystem
         Entity<SpriteComponent?> spriteEnt = (ent, sprite);
 
         SetLayer(spriteEnt, DoorVisualLayers.BasePowered, ent.Comp.Powered);
-        SetLayer(spriteEnt, DoorVisualLayers.BaseUnlit, ent.Comp.Unlit);
+        SetLayer(spriteEnt, DoorVisualLayers.BaseAccessGranted, ent.Comp.AccessGranted);
         SetLayer(spriteEnt, WeldableLayers.BaseWelded, ent.Comp.Welded);
         SetLayer(spriteEnt, DoorVisualLayers.BaseBolted, ent.Comp.Bolted);
         SetLayer(spriteEnt, DoorVisualLayers.BaseEmergencyAccess, ent.Comp.EmergencyAccess);

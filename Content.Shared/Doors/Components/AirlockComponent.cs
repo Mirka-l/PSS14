@@ -89,71 +89,16 @@ public sealed partial class AirlockComponent : Component
     #region Graphics
 
     /// <summary>
-    /// Whether the door lights should be visible.
+    /// Whether the access-granted lights should remain visible while the door is open.
     /// </summary>
     [DataField]
-    public bool OpenUnlitVisible = false;
+    public bool OpenAccessGrantedVisible = false;
 
     /// <summary>
     /// Whether the door should display emergency access lights.
     /// </summary>
     [DataField]
     public bool EmergencyAccessLayer = true;
-
-    /// <summary>
-    /// Whether or not to animate the panel when the door opens or closes.
-    /// </summary>
-    [DataField]
-    public bool AnimatePanel = true;
-
-    /// <summary>
-    /// The sprite state used to animate the airlock frame when the airlock opens.
-    /// </summary>
-    [DataField]
-    public string OpeningSpriteState = "opening_unlit";
-
-    /// <summary>
-    /// The sprite state used to animate the airlock panel when the airlock opens.
-    /// </summary>
-    [DataField]
-    public string OpeningPanelSpriteState = "panel_opening";
-
-    /// <summary>
-    /// The sprite state to use for the wire panel when the airlock is open. The
-    /// first frame will be used for when the airlock is closed.
-    /// </summary>
-    [DataField]
-    public string OpenPanelSpriteState = "panel_open";
-
-    /// <summary>
-    /// The sprite state used to animate the airlock frame when the airlock closes.
-    /// </summary>
-    [DataField]
-    public string ClosingSpriteState = "closing_unlit";
-
-    /// <summary>
-    /// The sprite state used to animate the airlock panel when the airlock closes.
-    /// </summary>
-    [DataField]
-    public string ClosingPanelSpriteState = "panel_closing";
-
-    /// <summary>
-    /// The sprite state used for the open airlock lights.
-    /// </summary>
-    [DataField]
-    public string OpenSpriteState = "open_unlit";
-
-    /// <summary>
-    /// The sprite state used for the closed airlock lights.
-    /// </summary>
-    [DataField]
-    public string ClosedSpriteState = "closed_unlit";
-
-    /// <summary>
-    /// The sprite state used for the 'access denied' lights animation.
-    /// </summary>
-    [DataField]
-    public string DenySpriteState = "deny_unlit";
 
     /// <summary>
     /// How long the animation played when the airlock denies access is in seconds.

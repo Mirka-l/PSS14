@@ -323,8 +323,10 @@ public enum DoorVisuals : byte
 public enum DoorVisualLayers : byte
 {
     Base,
-    BaseUnlit,
+    BasePowered,
+    BaseAccessGranted,
     BaseBolted,
     BaseEmergencyAccess,
+    BaseDeny,
     BaseEmagging,
 }

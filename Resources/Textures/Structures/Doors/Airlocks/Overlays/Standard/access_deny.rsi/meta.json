@@ -8,20 +8,7 @@
   },
   "states": [
     {
-      "name": "closing",
-      "delays": [
-        [
-          0.1,
-          0.1,
-          0.1,
-          0.1,
-          0.1,
-          0.1
-        ]
-      ]
-    },
-    {
-      "name": "opening",
+      "name": "closed",
       "delays": [
         [
           0.1,

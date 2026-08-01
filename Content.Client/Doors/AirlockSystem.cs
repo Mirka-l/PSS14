@@ -1,4 +1,3 @@
-using Content.Client.Wires.Visualizers;
 using Content.Shared.Doors.Components;
 using Content.Shared.Doors.Systems;
 using Content.Shared.Power;
@@ -25,20 +24,6 @@ public sealed partial class AirlockSystem : SharedAirlockSystem
         if (!TryComp<DoorComponent>(uid, out var door))
             return;
 
-        ((Animation)door.OpeningAnimation).AnimationTracks.Add(new AnimationTrackSpriteFlick()
-        {
-            LayerKey = DoorVisualLayers.BaseUnlit,
-            KeyFrames = { new AnimationTrackSpriteFlick.KeyFrame(comp.OpeningSpriteState, 0f) },
-        }
-        );
-
-        ((Animation)door.ClosingAnimation).AnimationTracks.Add(new AnimationTrackSpriteFlick()
-        {
-            LayerKey = DoorVisualLayers.BaseUnlit,
-            KeyFrames = { new AnimationTrackSpriteFlick.KeyFrame(comp.ClosingSpriteState, 0f) },
-        }
-        );
-
         door.DenyingAnimation = new Animation()
         {
             Length = TimeSpan.FromSeconds(comp.DenyAnimationTime),
@@ -46,31 +31,11 @@ public sealed partial class AirlockSystem : SharedAirlockSystem
             {
                 new AnimationTrackSpriteFlick()
                 {
-                    LayerKey = DoorVisualLayers.BaseUnlit,
-                    KeyFrames = { new AnimationTrackSpriteFlick.KeyFrame(comp.DenySpriteState, 0f) },
+                    LayerKey = DoorVisualLayers.BaseDeny,
+                    KeyFrames = { new AnimationTrackSpriteFlick.KeyFrame("closed", 0f) },
                 }
             }
         };
-
-        if (!comp.AnimatePanel)
-            return;
-
-        // For some reason the open panel sprite is used for both open and
-        // closed sprites. I really don't get it.
-        door.OpenSpriteStates.Add((WiresVisualLayers.MaintenancePanel, comp.OpenPanelSpriteState));
-        door.ClosedSpriteStates.Add((WiresVisualLayers.MaintenancePanel, comp.OpenPanelSpriteState));
-
-        ((Animation)door.OpeningAnimation).AnimationTracks.Add(new AnimationTrackSpriteFlick()
-        {
-            LayerKey = WiresVisualLayers.MaintenancePanel,
-            KeyFrames = { new AnimationTrackSpriteFlick.KeyFrame(comp.OpeningPanelSpriteState, 0f) },
-        });
-
-        ((Animation)door.ClosingAnimation).AnimationTracks.Add(new AnimationTrackSpriteFlick
-        {
-            LayerKey = WiresVisualLayers.MaintenancePanel,
-            KeyFrames = { new AnimationTrackSpriteFlick.KeyFrame(comp.ClosingPanelSpriteState, 0f) },
-        });
     }
 
     private void OnAppearanceChange(EntityUid uid, AirlockComponent comp, ref AppearanceChangeEvent args)
@@ -80,7 +45,9 @@ public sealed partial class AirlockSystem : SharedAirlockSystem
 
         var boltedVisible = false;
         var emergencyLightsVisible = false;
-        var unlitVisible = false;
+        var accessGrantedVisible = false;
+        var poweredVisible = false;
+        var denyVisible = false;
 
         if (!_appearanceSystem.TryGetData<DoorState>(uid, DoorVisuals.State, out var state, args.Component))
             state = DoorState.Closed;
@@ -92,16 +59,20 @@ public sealed partial class AirlockSystem : SharedAirlockSystem
                             && lights && state == DoorState.Closed;
 
             emergencyLightsVisible = _appearanceSystem.TryGetData<bool>(uid, DoorVisuals.EmergencyLights, out var eaLights, args.Component) && eaLights;
-            unlitVisible =
+            denyVisible = state == DoorState.Denying;
+            accessGrantedVisible =
                     (state == DoorState.Closing
                 ||  state == DoorState.Opening
-                ||  state == DoorState.Denying
-                || (state == DoorState.Open && comp.OpenUnlitVisible)
+                || (state == DoorState.Open && comp.OpenAccessGrantedVisible)
                 || (_appearanceSystem.TryGetData<bool>(uid, DoorVisuals.ClosedLights, out var closedLights, args.Component) && closedLights))
-                    && !boltedVisible && !emergencyLightsVisible;
+                    && !boltedVisible && !emergencyLightsVisible && !denyVisible;
+            poweredVisible = !accessGrantedVisible && !boltedVisible && !emergencyLightsVisible && !denyVisible;
         }
 
-        _sprite.LayerSetVisible((uid, args.Sprite), DoorVisualLayers.BaseUnlit, unlitVisible);
+        _sprite.LayerSetVisible((uid, args.Sprite), DoorVisualLayers.BasePowered, poweredVisible);
+        _sprite.LayerSetVisible((uid, args.Sprite), DoorVisualLayers.BaseAccessGranted, accessGrantedVisible);
+        _sprite.LayerSetVisible((uid, args.Sprite), DoorVisualLayers.BaseDeny, denyVisible);
+
         _sprite.LayerSetVisible((uid, args.Sprite), DoorVisualLayers.BaseBolted, boltedVisible);
         if (comp.EmergencyAccessLayer)
         {
@@ -116,16 +87,5 @@ public sealed partial class AirlockSystem : SharedAirlockSystem
             );
         }
 
-        switch (state)
-        {
-            case DoorState.Open:
-                _sprite.LayerSetRsiState((uid, args.Sprite), DoorVisualLayers.BaseUnlit, comp.ClosingSpriteState);
-                _sprite.LayerSetAnimationTime((uid, args.Sprite), DoorVisualLayers.BaseUnlit, 0);
-                break;
-            case DoorState.Closed:
-                _sprite.LayerSetRsiState((uid, args.Sprite), DoorVisualLayers.BaseUnlit, comp.OpeningSpriteState);
-                _sprite.LayerSetAnimationTime((uid, args.Sprite), DoorVisualLayers.BaseUnlit, 0);
-                break;
-        }
     }
 }

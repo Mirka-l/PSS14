@@ -14,7 +14,7 @@ public sealed partial class AirlockVisualsComponent : Component
     public SpriteSpecifier.Rsi Powered = default!;
 
     [DataField(required: true)]
-    public SpriteSpecifier.Rsi Unlit = default!;
+    public SpriteSpecifier.Rsi AccessGranted = default!;
 
     [DataField(required: true)]
     public SpriteSpecifier.Rsi Welded = default!;

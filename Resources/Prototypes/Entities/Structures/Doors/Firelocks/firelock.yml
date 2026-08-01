@@ -45,34 +45,55 @@
     layers:
     - state: closed
       map: ["enum.DoorVisualLayers.Base"]
-    - state: closed_unlit
+    - state: closed
+      sprite: Structures/Doors/Airlocks/Overlays/Firelock/warning.rsi
       shader: unshaded
-      map: ["enum.DoorVisualLayers.BaseUnlit"]
+      map: ["enum.FirelockVisualLayers.Warning"]
       visible: false
-    - state: welded
+    - state: closed
+      sprite: Structures/Doors/Airlocks/Overlays/Firelock/welded.rsi
       map: ["enum.WeldableLayers.BaseWelded"]
-    - state: bolted_unlit
+    - state: closed
+      sprite: Structures/Doors/Airlocks/Overlays/Firelock/bolted.rsi
       shader: unshaded
       map: ["enum.DoorVisualLayers.BaseBolted"]
       visible: false
-    - state: panel_open
+    - state: closed
+      sprite: Structures/Doors/Airlocks/Overlays/Firelock/panel.rsi
       map: ["enum.WiresVisualLayers.MaintenancePanel"]
-    - state: pressure_unlit
+    - state: active
+      sprite: Structures/Doors/Airlocks/Overlays/Firelock/pressure_warning.rsi
       visible: false
       shader: unshaded
       map: ["enum.FirelockVisualLayersPressure.Base"]
-    - state: temperature_unlit
+    - state: active
+      sprite: Structures/Doors/Airlocks/Overlays/Firelock/temperature_warning.rsi
       visible: false
       shader: unshaded
       map: ["enum.FirelockVisualLayersTemperature.Base"]
   - type: GenericVisualizer
     visuals:
+      enum.DoorVisuals.State:
+        enum.FirelockVisualLayers.Warning:
+          Closed: { state: closed }
+          Closing: { state: closing }
+          Open: { state: open }
+          Opening: { state: opening }
+        enum.WiresVisualLayers.MaintenancePanel:
+          Closed: { state: closed }
+          Closing: { state: closing }
+          Open: { state: open }
+          Opening: { state: opening }
       enum.FirelockVisuals.PressureWarning:
         enum.FirelockVisualLayersPressure.Base:
           True: { visible: true }
           False: { visible: false }
       enum.FirelockVisuals.TemperatureWarning:
         enum.FirelockVisualLayersTemperature.Base:
+          True: { visible: true }
+          False: { visible: false }
+      enum.WiresVisuals.MaintenancePanelState:
+        enum.WiresVisualLayers.MaintenancePanel:
           True: { visible: true }
           False: { visible: false }
   - type: AnimationPlayer
@@ -112,7 +133,6 @@
     time: 3
   - type: Firelock
   - type: Appearance
-  - type: WiresVisuals
   - type: WiresPanel
   - type: UserInterface
     interfaces:

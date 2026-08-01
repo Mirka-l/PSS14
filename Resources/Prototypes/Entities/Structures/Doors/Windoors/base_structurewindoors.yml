@@ -30,20 +30,21 @@
     layers:
     - state: closed
       map: ["enum.DoorVisualLayers.Base"]
-    - state: closed_unlit
+    - map: ["enum.DoorVisualLayers.BasePowered"]
       shader: unshaded
-      map: ["enum.DoorVisualLayers.BaseUnlit"]
       visible: false
-    - state: welded
-      map: ["enum.WeldableLayers.BaseWelded"]
-    - state: bolted_unlit
+    - map: ["enum.DoorVisualLayers.BaseAccessGranted"]
       shader: unshaded
-      map: ["enum.DoorVisualLayers.BaseBolted"]
-    - state: emergency_unlit
+      visible: false
+    - map: ["enum.WeldableLayers.BaseWelded"]
+    - map: ["enum.DoorVisualLayers.BaseBolted"]
       shader: unshaded
-      map: ["enum.DoorVisualLayers.BaseEmergencyAccess"]
-    - state: panel_open
-      map: ["enum.WiresVisualLayers.MaintenancePanel"]
+    - map: ["enum.DoorVisualLayers.BaseEmergencyAccess"]
+      shader: unshaded
+    - map: ["enum.WiresVisualLayers.MaintenancePanel"]
+    - map: ["enum.DoorVisualLayers.BaseDeny"]
+      shader: unshaded
+      visible: false
     - state: electrified_ai
       sprite: Interface/Misc/ai_hud.rsi
       shader: unshaded
@@ -55,6 +56,7 @@
       visible: false
       map: ["enum.ElectrifiedLayers.Sparks"]
     - state: sparks
+      sprite: Structures/Doors/Airlocks/Overlays/Windoor/effects.rsi
       map: ["enum.DoorVisualLayers.BaseEmagging"]
       shader: unshaded
       visible: false
@@ -112,8 +114,7 @@
     keepOpenIfClicked: true
     openPanelVisible: true
     denyAnimationTime: 0.4
-    animatePanel: false
-    openUnlitVisible: true
+    openAccessGrantedVisible: true
     # needed so that windoors loop between closing and reopening less often even though they don't crush
     safety: true
   - type: NavMapDoor
@@ -132,13 +133,41 @@
       enum.WiresUiKey.Key:
         type: WiresBoundUserInterface
   - type: Appearance
+  - type: AirlockVisuals
+    powered: { sprite: Structures/Doors/Airlocks/Overlays/Windoor/powered.rsi, state: closed }
+    accessGranted: { sprite: Structures/Doors/Airlocks/Overlays/Windoor/access_granted.rsi, state: closed }
+    welded: { sprite: Structures/Doors/Airlocks/Overlays/Windoor/welded.rsi, state: closed }
+    bolted: { sprite: Structures/Doors/Airlocks/Overlays/Windoor/bolted.rsi, state: closed }
+    emergencyAccess: { sprite: Structures/Doors/Airlocks/Overlays/Windoor/access_emergency.rsi, state: closed }
+    panel: { sprite: Structures/Doors/Airlocks/Overlays/Windoor/panel.rsi, state: closed }
+    deny: { sprite: Structures/Doors/Airlocks/Overlays/Windoor/access_deny.rsi, state: closed }
+    emagging: { sprite: Structures/Doors/Airlocks/Overlays/Windoor/effects.rsi, state: sparks }
   - type: GenericVisualizer
     visuals:
+      enum.DoorVisuals.State:
+        enum.DoorVisualLayers.BasePowered:
+          Closed: { state: closed }
+          Closing: { state: closing }
+          Open: { state: open }
+          Opening: { state: opening }
+        enum.DoorVisualLayers.BaseAccessGranted:
+          Closed: { state: closed }
+          Closing: { state: closing }
+          Open: { state: open }
+          Opening: { state: opening }
+        enum.WiresVisualLayers.MaintenancePanel:
+          Closed: { state: closed }
+          Closing: { state: closing }
+          Open: { state: open }
+          Opening: { state: opening }
       enum.ElectrifiedVisuals.ShowSparks:
         enum.ElectrifiedLayers.Sparks:
           True: { visible: True }
           False: { visible: False }
-  - type: WiresVisuals
+      enum.WiresVisuals.MaintenancePanelState:
+        enum.WiresVisualLayers.MaintenancePanel:
+          True: { visible: true }
+          False: { visible: false }
   - type: ElectrocutionHUDVisuals
   - type: Airtight
     noAirWhenFullyAirBlocked: false
@@ -164,20 +193,21 @@
     - state: secure_underlay
     - state: closed
       map: [ "enum.DoorVisualLayers.Base" ]
-    - state: closed_unlit
+    - map: [ "enum.DoorVisualLayers.BasePowered" ]
       shader: unshaded
-      map: [ "enum.DoorVisualLayers.BaseUnlit" ]
       visible: false
-    - state: welded
-      map: [ "enum.WeldableLayers.BaseWelded" ]
-    - state: bolted_unlit
+    - map: [ "enum.DoorVisualLayers.BaseAccessGranted" ]
       shader: unshaded
-      map: [ "enum.DoorVisualLayers.BaseBolted" ]
-    - state: emergency_unlit
+      visible: false
+    - map: [ "enum.WeldableLayers.BaseWelded" ]
+    - map: [ "enum.DoorVisualLayers.BaseBolted" ]
       shader: unshaded
-      map: [ "enum.DoorVisualLayers.BaseEmergencyAccess" ]
-    - state: panel_open
-      map: [ "enum.WiresVisualLayers.MaintenancePanel" ]
+    - map: [ "enum.DoorVisualLayers.BaseEmergencyAccess" ]
+      shader: unshaded
+    - map: [ "enum.WiresVisualLayers.MaintenancePanel" ]
+      visible: false
+    - map: [ "enum.DoorVisualLayers.BaseDeny" ]
+      shader: unshaded
       visible: false
     - state: electrified_ai
       sprite: Interface/Misc/ai_hud.rsi
@@ -190,6 +220,7 @@
       visible: false
       map: [ "enum.ElectrifiedLayers.Sparks" ]
     - state: sparks
+      sprite: Structures/Doors/Airlocks/Overlays/Windoor/effects.rsi
       map: ["enum.DoorVisualLayers.BaseEmagging"]
       shader: unshaded
       visible: false

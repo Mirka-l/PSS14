@@ -156,6 +156,12 @@ public enum FirelockVisuals : byte
 }
 
 [Serializable, NetSerializable]
+public enum FirelockVisualLayers : byte
+{
+    Warning
+}
+
+[Serializable, NetSerializable]
 public enum FirelockVisualLayersPressure : byte
 {
     Base
