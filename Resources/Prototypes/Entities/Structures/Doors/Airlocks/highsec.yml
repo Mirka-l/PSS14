@@ -46,6 +46,7 @@
       map: ["enum.DoorVisualLayers.BaseEmagging"]
       shader: unshaded
       visible: false
+      loop: false
   - type: AnimationPlayer
   - type: Physics
   - type: Fixtures

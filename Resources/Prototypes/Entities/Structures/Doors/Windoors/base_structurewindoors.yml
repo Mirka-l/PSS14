@@ -58,6 +58,7 @@
       map: ["enum.DoorVisualLayers.BaseEmagging"]
       shader: unshaded
       visible: false
+      loop: false
   - type: AnimationPlayer
   - type: ApcPowerReceiver
   - type: ExtensionCableReceiver
@@ -192,6 +193,7 @@
       map: ["enum.DoorVisualLayers.BaseEmagging"]
       shader: unshaded
       visible: false
+      loop: false
   - type: Damageable
     damageModifierSet: RGlass
   - type: StaticPrice

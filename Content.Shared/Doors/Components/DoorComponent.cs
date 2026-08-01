@@ -26,6 +26,13 @@ public sealed partial class DoorComponent : Component
     [Access(typeof(SharedDoorSystem))]
     public DoorState State = DoorState.Closed;
 
+    /// <summary>
+    /// Whether the door is currently being emagged.
+    /// </summary>
+    [ViewVariables(VVAccess.ReadOnly), AutoNetworkedField]
+    [Access(typeof(SharedDoorSystem))]
+    public bool IsEmagging;
+
     #region Timing
     // if you want do dynamically adjust these times, you need to add networking for them. So for now, they are all
     // read-only.
@@ -68,6 +75,13 @@ public sealed partial class DoorComponent : Component
     /// </summary>
     [AutoNetworkedField, ViewVariables]
     public TimeSpan? NextStateChange;
+
+    /// <summary>
+    ///     When the door is being emagged, this is the time when the process will finish.
+    /// </summary>
+    [AutoNetworkedField, ViewVariables]
+    [Access(typeof(SharedDoorSystem))]
+    public TimeSpan? NextEmagStateChange;
 
     /// <summary>
     ///     Whether the door is currently partially closed or open. I.e., when the door is "closing" and is already opaque,
@@ -148,11 +162,6 @@ public sealed partial class DoorComponent : Component
     public const string DenyKey = "door_animation_deny";
 
     /// <summary>
-    /// The key used when playing door emag animations.
-    /// </summary>
-    public const string EmagKey = "door_animation_emag";
-
-    /// <summary>
     /// The sprite state used for the door when it's open.
     /// </summary>
     [DataField]
@@ -191,12 +200,6 @@ public sealed partial class DoorComponent : Component
     public string ClosingSpriteState = "closing";
 
     /// <summary>
-    /// The sprite state used for the door when it's being emagged.
-    /// </summary>
-    [DataField]
-    public string EmaggingSpriteState = "sparks";
-
-    /// <summary>
     /// The length of the door's opening animation.
     /// </summary>
     [DataField]
@@ -207,12 +210,6 @@ public sealed partial class DoorComponent : Component
     /// </summary>
     [DataField]
     public TimeSpan ClosingAnimationTime = TimeSpan.FromSeconds(0.8);
-
-    /// <summary>
-    /// The length of the door's emagging animation.
-    /// </summary>
-    [DataField]
-    public TimeSpan EmaggingAnimationTime = TimeSpan.FromSeconds(1.5);
 
     /// <summary>
     /// The animation used when the door opens.
@@ -228,11 +225,6 @@ public sealed partial class DoorComponent : Component
     /// The animation used when the door denies access.
     /// </summary>
     public object DenyingAnimation = default!;
-
-    /// <summary>
-    /// The animation used when the door is emagged.
-    /// </summary>
-    public object EmaggingAnimation = default!;
 
     #endregion Graphics
 
@@ -316,13 +308,13 @@ public enum DoorState : byte
     Open,
     Opening,
     Denying,
-    Emagging
 }
 
 [Serializable, NetSerializable]
 public enum DoorVisuals : byte
 {
     State,
+    Emagging,
     BoltLights,
     EmergencyLights,
     ClosedLights,

@@ -58,22 +58,6 @@ public sealed partial class DoorSystem : SharedDoorSystem
                 },
             },
         };
-
-        comp.EmaggingAnimation = new Animation
-        {
-            Length = comp.EmaggingAnimationTime,
-            AnimationTracks =
-            {
-                new AnimationTrackSpriteFlick
-                {
-                    LayerKey = DoorVisualLayers.BaseEmagging,
-                    KeyFrames =
-                    {
-                        new AnimationTrackSpriteFlick.KeyFrame(comp.EmaggingSpriteState, 0f),
-                    },
-                },
-            },
-        };
     }
 
     private void OnAnimationCompleted(Entity<DoorComponent> ent, ref AnimationCompletedEvent args)
@@ -113,12 +97,22 @@ public sealed partial class DoorSystem : SharedDoorSystem
         if (!AppearanceSystem.TryGetData<DoorState>(entity, DoorVisuals.State, out var state, args.Component))
             state = DoorState.Closed;
 
+        AppearanceSystem.TryGetData<bool>(entity, DoorVisuals.Emagging, out var isEmagging, args.Component);
+
         if (AppearanceSystem.TryGetData<string>(entity, PaintableVisuals.Prototype, out var prototype, args.Component))
             UpdateSpriteLayers((entity.Owner, args.Sprite), prototype);
 
         // We are checking beforehand since some doors may not have an emagging visual layer, and we don't want LayerSetVisible to throw an error.
-        if (_sprite.TryGetLayer(entity.Owner, DoorVisualLayers.BaseEmagging, out var _, false))
-            _sprite.LayerSetVisible(entity.Owner, DoorVisualLayers.BaseEmagging, state == DoorState.Emagging);
+        if (_sprite.TryGetLayer(entity.Owner, DoorVisualLayers.BaseEmagging, out var emaggingLayer, false))
+        {
+            if (isEmagging && !emaggingLayer.Visible)
+            {
+                _sprite.LayerSetAnimationTime((entity.Owner, args.Sprite), DoorVisualLayers.BaseEmagging, 0f);
+                _sprite.LayerSetAutoAnimated((entity.Owner, args.Sprite), DoorVisualLayers.BaseEmagging, true);
+            }
+
+            _sprite.LayerSetVisible(entity.Owner, DoorVisualLayers.BaseEmagging, isEmagging);
+        }
 
         UpdateAppearanceForDoorState(entity, args.Sprite, state);
     }
@@ -190,15 +184,6 @@ public sealed partial class DoorSystem : SharedDoorSystem
                     return;
 
                 _animationSystem.Play(entity, (Animation)entity.Comp.DenyingAnimation, DoorComponent.DenyKey);
-
-                return;
-            case DoorState.Emagging:
-                if (_animationSystem.HasRunningAnimation(entity, DoorComponent.EmagKey))
-                    return;
-
-                // We are checking beforehand since some doors may not have an emagging visual layer.
-                if (_sprite.TryGetLayer(entity.Owner, DoorVisualLayers.BaseEmagging, out var _, false))
-                    _animationSystem.Play(entity, (Animation)entity.Comp.EmaggingAnimation, DoorComponent.EmagKey);
 
                 return;
         }

@@ -55,6 +55,11 @@ public abstract partial class SharedDoorSystem : EntitySystem
     /// </summary>
     private readonly HashSet<Entity<DoorComponent>> _activeDoors = new();
 
+    /// <summary>
+    ///     A set of doors that are currently being emagged.
+    /// </summary>
+    private readonly HashSet<Entity<DoorComponent>> _emaggingDoors = new();
+
     private readonly HashSet<Entity<PhysicsComponent>> _doorIntersecting = new();
 
     public override void Initialize()
@@ -101,6 +106,9 @@ public abstract partial class SharedDoorSystem : EntitySystem
             }
         }
 
+        if (door.IsEmagging && door.NextEmagStateChange != null)
+            _emaggingDoors.Add(ent);
+
         // should this door have collision and the like enabled?
         var collidable = door.State == DoorState.Closed
             || door.State == DoorState.Closing && door.Partial
@@ -108,11 +116,13 @@ public abstract partial class SharedDoorSystem : EntitySystem
 
         SetCollidable(ent, collidable, door);
         AppearanceSystem.SetData(ent, DoorVisuals.State, door.State);
+        AppearanceSystem.SetData(ent, DoorVisuals.Emagging, door.IsEmagging);
     }
 
     private void OnRemove(Entity<DoorComponent> door, ref ComponentRemove args)
     {
         _activeDoors.Remove(door);
+        _emaggingDoors.Remove(door);
     }
 
     private void OnEmagged(EntityUid uid, DoorComponent door, ref GotEmaggedEvent args)
@@ -126,14 +136,43 @@ public abstract partial class SharedDoorSystem : EntitySystem
         if (!airlock.Powered)
             return;
 
-        if (door.State != DoorState.Closed || IsWelded(uid))
-            return;
-
-        if (!SetState(uid, DoorState.Emagging, door))
+        if (!StartEmagging((uid, door)))
             return;
 
         args.Repeatable = true;
         args.Handled = true;
+    }
+
+    private bool StartEmagging(Entity<DoorComponent> ent)
+    {
+        if (ent.Comp.State != DoorState.Closed || ent.Comp.IsEmagging)
+            return false;
+
+        ent.Comp.IsEmagging = true;
+        ent.Comp.NextEmagStateChange = GameTiming.CurTime + ent.Comp.EmagDuration;
+        _emaggingDoors.Add(ent);
+
+        Dirty(ent);
+        AppearanceSystem.SetData(ent, DoorVisuals.Emagging, ent.Comp.IsEmagging);
+        return true;
+    }
+
+    private void FinishEmagging(Entity<DoorComponent> ent)
+    {
+        ent.Comp.IsEmagging = false;
+        ent.Comp.NextEmagStateChange = null;
+        _emaggingDoors.Remove(ent);
+
+        Dirty(ent);
+        AppearanceSystem.SetData(ent, DoorVisuals.Emagging, ent.Comp.IsEmagging);
+
+        if (IsWelded(ent))
+            return;
+
+        StartOpening(ent, ent.Comp);
+
+        if (ent.Comp.State == DoorState.Opening && TryComp<DoorBoltComponent>(ent, out var bolts))
+            SetBoltsDown((ent.Owner, bolts), true, predicted: true);
     }
 
     #region StateManagement
@@ -145,6 +184,12 @@ public abstract partial class SharedDoorSystem : EntitySystem
         else
             _activeDoors.Add(ent);
 
+        if (door.IsEmagging && door.NextEmagStateChange != null)
+            _emaggingDoors.Add(ent);
+        else
+            _emaggingDoors.Remove(ent);
+
+        AppearanceSystem.SetData(ent, DoorVisuals.Emagging, door.IsEmagging);
         RaiseLocalEvent(ent, new DoorStateChangedEvent(door.State));
     }
 
@@ -172,11 +217,6 @@ public abstract partial class SharedDoorSystem : EntitySystem
             case DoorState.Denying:
                 _activeDoors.Add((uid, door));
                 door.NextStateChange = GameTiming.CurTime + door.DenyDuration;
-                break;
-
-            case DoorState.Emagging:
-                _activeDoors.Add((uid, door));
-                door.NextStateChange = GameTiming.CurTime + door.EmagDuration;
                 break;
 
             case DoorState.Open:
@@ -219,7 +259,7 @@ public abstract partial class SharedDoorSystem : EntitySystem
 
     private void OnBeforePry(EntityUid uid, DoorComponent door, ref BeforePryEvent args)
     {
-        if (IsWelded(uid) || !door.CanPry)
+        if (door.IsEmagging || IsWelded(uid) || !door.CanPry)
             args.Cancelled = true;
     }
 
@@ -327,7 +367,7 @@ public abstract partial class SharedDoorSystem : EntitySystem
         if (!Resolve(uid, ref door))
             return false;
 
-        if (IsWelded(uid))
+        if (door.IsEmagging || IsWelded(uid))
             return false;
 
         if (Paused(uid))
@@ -361,8 +401,6 @@ public abstract partial class SharedDoorSystem : EntitySystem
         if (!Resolve(uid, ref door))
             return;
 
-        var lastState = door.State;
-
         if (!SetState(uid, DoorState.Opening, door))
             return;
 
@@ -373,8 +411,6 @@ public abstract partial class SharedDoorSystem : EntitySystem
         else if (_net.IsServer)
             Audio.PlayPvs(door.OpenSound, uid, audioParams);
 
-        if (lastState == DoorState.Emagging && TryComp<DoorBoltComponent>(uid, out var doorBoltComponent))
-            SetBoltsDown((uid, doorBoltComponent), true, user, true);
     }
 
     /// <summary>
@@ -407,9 +443,7 @@ public abstract partial class SharedDoorSystem : EntitySystem
             return false;
         }
 
-        SetState(uid, DoorState.Emagging, door);
-
-        return true;
+        return StartEmagging((uid, door));
     }
     #endregion
 
@@ -744,6 +778,31 @@ public abstract partial class SharedDoorSystem : EntitySystem
     {
         var time = GameTiming.CurTime;
 
+        UpdateEmagging(time);
+        UpdateDoorState(time);
+    }
+
+    private void UpdateEmagging(TimeSpan time)
+    {
+        foreach (var ent in _emaggingDoors.ToList())
+        {
+            var door = ent.Comp;
+            if (door.Deleted || !door.IsEmagging || door.NextEmagStateChange == null)
+            {
+                _emaggingDoors.Remove(ent);
+                continue;
+            }
+
+            if (Paused(ent))
+                continue;
+
+            if (door.NextEmagStateChange.Value < time)
+                FinishEmagging(ent);
+        }
+    }
+
+    private void UpdateDoorState(TimeSpan time)
+    {
         foreach (var ent in _activeDoors.ToList())
         {
             var door = ent.Comp;
@@ -808,10 +867,6 @@ public abstract partial class SharedDoorSystem : EntitySystem
             case DoorState.Denying:
                 // Finish denying entry and return to the closed state.
                 SetState(ent, DoorState.Closed, door);
-                break;
-
-            case DoorState.Emagging:
-                StartOpening(ent, door);
                 break;
 
             case DoorState.Open:

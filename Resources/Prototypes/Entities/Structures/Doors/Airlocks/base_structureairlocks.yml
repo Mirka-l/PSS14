@@ -36,6 +36,7 @@
     - map: ["enum.DoorVisualLayers.BaseEmagging"]
       shader: unshaded
       visible: false
+      loop: false
 
   - type: AirlockVisuals
     powered: { sprite: Structures/Doors/Airlocks/Overlays/Standard/powered.rsi, state: closed }
@@ -363,6 +364,7 @@
       map: ["enum.DoorVisualLayers.BaseEmagging"]
       shader: unshaded
       visible: false
+      loop: false
 
 - type: entity
   parent: Airlock

@@ -92,8 +92,7 @@ namespace Content.Server.DeviceLinking.Systems
             }
             else if (args.State == DoorState.Open
                   || args.State == DoorState.Opening
-                  || args.State == DoorState.Closing
-                  || args.State == DoorState.Emagging)
+                  || args.State == DoorState.Closing)
             {
                 // say the door is open whenever it would be letting air pass
                 _signalSystem.SendSignal(uid, door.OutOpen, true);
