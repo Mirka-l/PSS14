@@ -7,22 +7,11 @@
         "y": 32
     },
     "states": [
-    {
-      "name": "powered_close"
-    },
-    {
-      "name": "powered_open"
-    },        {
+        {
             "name": "assembly"
         },
         {
-            "name": "bolted_unlit"
-        },
-        {
             "name": "closed"
-        },
-        {
-            "name": "closed_unlit"
         },
         {
             "name": "closing",
@@ -34,22 +23,6 @@
                     0.07,
                     0.07,
                     0.2
-                ]
-            ]
-        },
-        {
-            "name": "closing_unlit"
-        },
-        {
-            "name": "deny_unlit",
-            "delays": [
-                [
-                    0.1,
-                    0.1,
-                    0.1,
-                    0.1,
-                    0.1,
-                    0.1
                 ]
             ]
         },
@@ -71,83 +44,6 @@
                     0.07,
                     0.07,
                     0.2
-                ]
-            ]
-        },
-        {
-            "name": "opening_unlit"
-        },
-        {
-            "name": "panel_closing"
-        },
-        {
-            "name": "panel_open"
-        },
-        {
-            "name": "panel_opening"
-        },
-        {
-            "name": "sparks",
-            "delays": [
-                [
-                    0.1,
-                    0.1,
-                    0.1,
-                    0.1,
-                    0.1,
-                    0.1
-                ]
-            ]
-        },
-        {
-            "name": "sparks_broken",
-            "delays": [
-                [
-                    0.1,
-                    0.1,
-                    0.1,
-                    0.1,
-                    0.1,
-                    0.1
-                ]
-            ]
-        },
-        {
-            "name": "sparks_damaged",
-            "delays": [
-                [
-                    0.1,
-                    0.1,
-                    0.1,
-                    0.1,
-                    0.1,
-                    0.1,
-                    1.7
-                ]
-            ]
-        },
-        {
-            "name": "sparks_open",
-            "delays": [
-                [
-                    0.1,
-                    0.1,
-                    0.1,
-                    0.1,
-                    0.1,
-                    0.1
-                ]
-            ]
-        },
-        {
-            "name": "welded"
-        },
-        {
-            "name": "emergency_unlit",
-            "delays": [
-                [
-                    0.4,
-                    0.4
                 ]
             ]
         }

@@ -8,16 +8,20 @@
   },
   "states": [
     {
-      "name": "closed"
+      "name": "closed",
+      "directions": 4
     },
     {
-      "name": "closing"
+      "name": "closing",
+      "directions": 4
     },
     {
-      "name": "open"
+      "name": "open",
+      "directions": 4
     },
     {
-      "name": "opening"
+      "name": "opening",
+      "directions": 4
     }
   ]
 }
