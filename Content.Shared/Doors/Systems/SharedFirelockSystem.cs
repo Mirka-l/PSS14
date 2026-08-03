@@ -29,6 +29,8 @@ public abstract partial class SharedFirelockSystem : EntitySystem
         // Visuals
         SubscribeLocalEvent<FirelockComponent, MapInitEvent>(UpdateVisuals);
         SubscribeLocalEvent<FirelockComponent, ComponentStartup>(OnComponentStartup);
+        SubscribeLocalEvent<FirelockComponent, DoorStateChangedEvent>(OnStateChanged);
+        SubscribeLocalEvent<FirelockComponent, DoorBoltLightsChangedEvent>(OnBoltLightsChanged);
 
         SubscribeLocalEvent<FirelockComponent, ExaminedEvent>(OnExamined);
     }
@@ -110,28 +112,39 @@ public abstract partial class SharedFirelockSystem : EntitySystem
         UpdateVisuals(ent.Owner,ent.Comp, args);
     }
 
+    private void OnStateChanged(Entity<FirelockComponent> ent, ref DoorStateChangedEvent args)
+    {
+        UpdateVisuals(ent, ent.Comp, state: args.State);
+    }
+
+    private void OnBoltLightsChanged(Entity<FirelockComponent> ent, ref DoorBoltLightsChangedEvent args)
+    {
+        UpdateVisuals(ent, ent.Comp, boltLightsVisible: args.Visible);
+    }
+
     private void UpdateVisuals(EntityUid uid, FirelockComponent component, EntityEventArgs args) => UpdateVisuals(uid, component);
 
-    private void UpdateVisuals(EntityUid uid,
+    protected void UpdateVisuals(EntityUid uid,
         FirelockComponent? firelock = null,
         DoorComponent? door = null,
-        AppearanceComponent? appearance = null)
+        AppearanceComponent? appearance = null,
+        DoorState? state = null,
+        bool? boltLightsVisible = null)
     {
-        if (!Resolve(uid, ref door, ref appearance, false))
+        if (!Resolve(uid, ref firelock, ref door, ref appearance, false))
             return;
 
-        // only bother to check pressure on doors that are some variation of closed.
-        if (door.State != DoorState.Closed
-            && door.State != DoorState.Denying)
-        {
-            _appearance.SetData(uid, DoorVisuals.ClosedLights, false, appearance);
-            return;
-        }
+        var currentState = state ?? door.State;
+        var boltedVisible = boltLightsVisible ??
+            (TryComp<DoorBoltComponent>(uid, out var bolts) && _doorSystem.GetBoltLightsVisible((uid, bolts)));
+        var warningVisible = (currentState == DoorState.Closing
+                || currentState == DoorState.Opening
+                || currentState == DoorState.Denying
+                || currentState == DoorState.Closed && firelock.IsLocked)
+            && !boltedVisible;
 
-        if (!Resolve(uid, ref firelock, ref appearance, false))
-            return;
-
-        _appearance.SetData(uid, DoorVisuals.ClosedLights, firelock.IsLocked, appearance);
+        _appearance.SetData(uid, DoorVisuals.BoltedVisible, boltedVisible, appearance);
+        _appearance.SetData(uid, FirelockVisuals.Warning, warningVisible, appearance);
     }
 
     #endregion
@@ -153,6 +166,7 @@ public enum FirelockVisuals : byte
 {
     PressureWarning,
     TemperatureWarning,
+    Warning,
 }
 
 [Serializable, NetSerializable]

@@ -29,6 +29,19 @@ namespace Content.Shared.Doors
     }
 
     /// <summary>
+    /// Raised when the effective visibility of a door's bolt lights may have changed.
+    /// </summary>
+    public sealed class DoorBoltLightsChangedEvent : EntityEventArgs
+    {
+        public readonly bool Visible;
+
+        public DoorBoltLightsChangedEvent(bool visible)
+        {
+            Visible = visible;
+        }
+    }
+
+    /// <summary>
     /// Raised when the door is determining whether it is able to open.
     /// Cancel to stop the door from being opened.
     /// </summary>

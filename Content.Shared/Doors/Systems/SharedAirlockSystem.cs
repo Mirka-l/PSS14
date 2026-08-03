@@ -24,8 +24,10 @@ public abstract partial class SharedAirlockSystem : EntitySystem
         base.Initialize();
 
         SubscribeLocalEvent<AirlockComponent, BeforeDoorClosedEvent>(OnBeforeDoorClosed);
+        SubscribeLocalEvent<AirlockComponent, MapInitEvent>(OnMapInit);
         SubscribeLocalEvent<AirlockComponent, DoorStateChangedEvent>(OnStateChanged);
         SubscribeLocalEvent<AirlockComponent, DoorBoltsChangedEvent>(OnBoltsChanged);
+        SubscribeLocalEvent<AirlockComponent, DoorBoltLightsChangedEvent>(OnBoltLightsChanged);
         SubscribeLocalEvent<AirlockComponent, BeforeDoorOpenedEvent>(OnBeforeDoorOpened);
         SubscribeLocalEvent<AirlockComponent, BeforeDoorDeniedEvent>(OnBeforeDoorDenied);
         SubscribeLocalEvent<AirlockComponent, GetPryTimeModifierEvent>(OnGetPryMod);
@@ -33,6 +35,11 @@ public abstract partial class SharedAirlockSystem : EntitySystem
         SubscribeLocalEvent<AirlockComponent, SignalReceivedEvent>(OnSignalReceived);
         SubscribeLocalEvent<AirlockComponent, PowerChangedEvent>(OnPowerChanged);
         SubscribeLocalEvent<AirlockComponent, ActivateInWorldEvent>(OnActivate, before: new[] { typeof(SharedDoorSystem) });
+    }
+
+    private void OnMapInit(Entity<AirlockComponent> ent, ref MapInitEvent args)
+    {
+        UpdateVisuals(ent);
     }
 
     private void OnBeforeDoorClosed(Entity<AirlockComponent> ent, ref BeforeDoorClosedEvent args)
@@ -57,6 +64,8 @@ public abstract partial class SharedAirlockSystem : EntitySystem
 
     private void OnStateChanged(Entity<AirlockComponent> ent, ref DoorStateChangedEvent args)
     {
+        UpdateVisuals(ent, args.State);
+
         // This is here so we don't accidentally bulldoze state values and mispredict.
         if (_timing.ApplyingState)
             return;
@@ -79,9 +88,16 @@ public abstract partial class SharedAirlockSystem : EntitySystem
 
     private void OnBoltsChanged(Entity<AirlockComponent> ent, ref DoorBoltsChangedEvent args)
     {
+        UpdateVisuals(ent);
+
         // If unbolted, reset the auto close timer
         if (!args.BoltsDown)
             UpdateAutoClose((ent, ent.Comp));
+    }
+
+    private void OnBoltLightsChanged(Entity<AirlockComponent> ent, ref DoorBoltLightsChangedEvent args)
+    {
+        UpdateVisuals(ent, boltLightsVisible: args.Visible);
     }
 
     private void OnBeforeDoorOpened(Entity<AirlockComponent> ent, ref BeforeDoorOpenedEvent args)
@@ -156,6 +172,7 @@ public abstract partial class SharedAirlockSystem : EntitySystem
     {
         ent.Comp.Powered = args.Powered;
         Dirty(ent);
+        UpdateVisuals(ent);
 
         if (!TryComp(ent, out DoorComponent? door))
             return;
@@ -187,7 +204,7 @@ public abstract partial class SharedAirlockSystem : EntitySystem
 
     public void UpdateEmergencyLightStatus(Entity<AirlockComponent> ent)
     {
-        Appearance.SetData(ent, DoorVisuals.EmergencyLights, ent.Comp.EmergencyAccess);
+        UpdateVisuals(ent);
     }
 
     public void SetEmergencyAccess(Entity<AirlockComponent> ent, bool value, EntityUid? user = null, bool predicted = false)
@@ -207,6 +224,54 @@ public abstract partial class SharedAirlockSystem : EntitySystem
             Audio.PlayPredicted(sound, ent, user: user);
         else
             Audio.PlayPvs(sound, ent);
+    }
+
+    /// <summary>
+    /// Calculates the final visibility of every mutually exclusive airlock indicator.
+    /// GenericVisualizer is responsible only for applying these values to sprite layers.
+    /// </summary>
+    private void UpdateVisuals(
+        Entity<AirlockComponent> ent,
+        DoorState? doorState = null,
+        bool? boltLightsVisible = null)
+    {
+        if (!TryComp<DoorComponent>(ent, out var door)
+            || !TryComp<AppearanceComponent>(ent, out var appearance))
+        {
+            return;
+        }
+
+        var state = doorState ?? door.State;
+        var boltedVisible = ent.Comp.Powered
+            && (boltLightsVisible ??
+                (TryComp<DoorBoltComponent>(ent, out var bolts)
+                 && DoorSystem.GetBoltLightsVisible((ent.Owner, bolts))));
+        var emergencyAccessVisible = ent.Comp.Powered
+            && ent.Comp.EmergencyAccessLayer
+            && ent.Comp.EmergencyAccess
+            && !boltedVisible;
+        var denyVisible = ent.Comp.Powered
+            && state == DoorState.Denying
+            && !boltedVisible
+            && !emergencyAccessVisible;
+        var accessGrantedVisible = ent.Comp.Powered
+            && (state == DoorState.Closing
+                || state == DoorState.Opening
+                || state == DoorState.Open && ent.Comp.OpenAccessGrantedVisible)
+            && !boltedVisible
+            && !emergencyAccessVisible
+            && !denyVisible;
+        var poweredVisible = ent.Comp.Powered
+            && !boltedVisible
+            && !emergencyAccessVisible
+            && !denyVisible
+            && !accessGrantedVisible;
+
+        Appearance.SetData(ent, DoorVisuals.PoweredVisible, poweredVisible, appearance);
+        Appearance.SetData(ent, DoorVisuals.AccessGrantedVisible, accessGrantedVisible, appearance);
+        Appearance.SetData(ent, DoorVisuals.BoltedVisible, boltedVisible, appearance);
+        Appearance.SetData(ent, DoorVisuals.EmergencyAccessVisible, emergencyAccessVisible, appearance);
+        Appearance.SetData(ent, DoorVisuals.DenyVisible, denyVisible, appearance);
     }
 
     public void SetAutoCloseDelayModifier(AirlockComponent component, float value)

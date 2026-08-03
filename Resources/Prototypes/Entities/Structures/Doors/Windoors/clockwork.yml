@@ -16,10 +16,13 @@
       shader: unshaded
       visible: false
     - map: ["enum.WeldableLayers.BaseWelded"]
+      visible: false
     - map: ["enum.DoorVisualLayers.BaseBolted"]
       shader: unshaded
+      visible: false
     - map: ["enum.DoorVisualLayers.BaseEmergencyAccess"]
       shader: unshaded
+      visible: false
     - map: ["enum.WiresVisualLayers.MaintenancePanel"]
     - map: ["enum.DoorVisualLayers.BaseDeny"]
       shader: unshaded

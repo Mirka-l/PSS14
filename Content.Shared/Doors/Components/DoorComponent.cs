@@ -313,11 +313,23 @@ public enum DoorState : byte
 [Serializable, NetSerializable]
 public enum DoorVisuals : byte
 {
+    /// <summary>
+    /// The physical state shared by the door body and state-dependent overlays.
+    /// </summary>
     State,
+
+    /// <summary>
+    /// Whether the one-shot emag effect is currently active.
+    /// </summary>
     Emagging,
-    BoltLights,
-    EmergencyLights,
-    ClosedLights,
+
+    // These are final visibility values calculated by gameplay systems. GenericVisualizer
+    // only applies them to their corresponding sprite layers.
+    PoweredVisible,
+    AccessGrantedVisible,
+    BoltedVisible,
+    EmergencyAccessVisible,
+    DenyVisible,
 }
 
 public enum DoorVisualLayers : byte

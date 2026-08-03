@@ -119,7 +119,7 @@ public abstract partial class SharedDoorSystem : EntitySystem
         AppearanceSystem.SetData(ent, DoorVisuals.Emagging, door.IsEmagging);
     }
 
-    private void OnRemove(Entity<DoorComponent> door, ref ComponentRemove args)
+    protected virtual void OnRemove(Entity<DoorComponent> door, ref ComponentRemove args)
     {
         _activeDoors.Remove(door);
         _emaggingDoors.Remove(door);

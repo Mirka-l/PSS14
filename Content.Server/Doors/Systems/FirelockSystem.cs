@@ -75,11 +75,11 @@ namespace Content.Server.Doors.Systems
                     && _appearanceQuery.TryGetComponent(uid, out var appearance))
                 {
                     var (pressure, fire) = CheckPressureAndFire(uid, firelock, airtight);
-                    _appearance.SetData(uid, DoorVisuals.ClosedLights, fire || pressure, appearance);
                     firelock.Temperature = fire;
                     firelock.Pressure = pressure;
                     _appearance.SetData(uid, FirelockVisuals.PressureWarning, pressure, appearance);
                     _appearance.SetData(uid, FirelockVisuals.TemperatureWarning, fire, appearance);
+                    UpdateVisuals(uid, firelock, door, appearance);
                     Dirty(uid, firelock);
 
                     if (_pointLightQuery.TryComp(uid, out var pointLight))

@@ -1,39 +1,7 @@
-using Content.Shared.Doors.Components;
 using Content.Shared.Doors.Systems;
-using Robust.Client.GameObjects;
 
 namespace Content.Client.Doors;
 
 public sealed partial class FirelockSystem : SharedFirelockSystem
 {
-    [Dependency] private SharedAppearanceSystem _appearanceSystem = default!;
-    [Dependency] private SpriteSystem _sprite = default!;
-
-    public override void Initialize()
-    {
-        base.Initialize();
-        SubscribeLocalEvent<FirelockComponent, AppearanceChangeEvent>(OnAppearanceChange);
-    }
-
-    private void OnAppearanceChange(EntityUid uid, FirelockComponent comp, ref AppearanceChangeEvent args)
-    {
-        if (args.Sprite == null)
-            return;
-
-        var boltedVisible = false;
-        var warningVisible = false;
-
-        if (!_appearanceSystem.TryGetData<DoorState>(uid, DoorVisuals.State, out var state, args.Component))
-            state = DoorState.Closed;
-
-        boltedVisible = _appearanceSystem.TryGetData<bool>(uid, DoorVisuals.BoltLights, out var lights, args.Component) && lights;
-        warningVisible =
-            state == DoorState.Closing
-            ||  state == DoorState.Opening
-            ||  state == DoorState.Denying
-            || (_appearanceSystem.TryGetData<bool>(uid, DoorVisuals.ClosedLights, out var closedLights, args.Component) && closedLights);
-
-        _sprite.LayerSetVisible((uid, args.Sprite), FirelockVisualLayers.Warning, warningVisible && !boltedVisible);
-        _sprite.LayerSetVisible((uid, args.Sprite), DoorVisualLayers.BaseBolted, boltedVisible);
-    }
 }

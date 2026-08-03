@@ -3,19 +3,29 @@ using Content.Shared.Doors.Systems;
 using Content.Shared.SprayPainter.Prototypes;
 using Robust.Client.Animations;
 using Robust.Client.GameObjects;
+using Robust.Shared.Reflection;
 
 namespace Content.Client.Doors;
 
 public sealed partial class DoorSystem : SharedDoorSystem
 {
     [Dependency] private AnimationPlayerSystem _animationSystem = default!;
+    [Dependency] private IReflectionManager _reflection = default!;
     [Dependency] private SpriteSystem _sprite = default!;
+
+    private readonly HashSet<EntityUid> _emaggingVisuals = new();
 
     public override void Initialize()
     {
         base.Initialize();
         SubscribeLocalEvent<DoorComponent, AppearanceChangeEvent>(OnAppearanceChange);
         SubscribeLocalEvent<DoorComponent, AnimationCompletedEvent>(OnAnimationCompleted);
+    }
+
+    protected override void OnRemove(Entity<DoorComponent> ent, ref ComponentRemove args)
+    {
+        base.OnRemove(ent, ref args);
+        _emaggingVisuals.Remove(ent);
     }
 
     protected override void OnComponentInit(Entity<DoorComponent> ent, ref ComponentInit args)
@@ -58,6 +68,73 @@ public sealed partial class DoorSystem : SharedDoorSystem
                 },
             },
         };
+
+        AddGenericVisualizerTracks(ent);
+    }
+
+    /// <summary>
+    /// Adds every enum-mapped sprite layer configured for <see cref="DoorVisuals.State"/> in GenericVisualizer
+    /// to the same client-side opening and closing animations as the door body.
+    /// This keeps RSI paths, layer selection, and state names declarative in YAML while restoring
+    /// the shared local animation clock previously used by airlock overlays.
+    /// </summary>
+    private void AddGenericVisualizerTracks(Entity<DoorComponent> ent)
+    {
+        if (!TryComp<GenericVisualizerComponent>(ent, out var visualizer))
+            return;
+
+        var visuals = visualizer.Visuals;
+        if (!visuals.TryGetValue(DoorVisuals.State, out var layers))
+            return;
+
+        foreach (var (rawLayerKey, states) in layers)
+        {
+            if (!_reflection.TryParseEnumReference(rawLayerKey, out var layerKey)
+                || layerKey.Equals(DoorVisualLayers.Base))
+            {
+                continue;
+            }
+
+            AddAnimationTrack((Animation)ent.Comp.OpeningAnimation, layerKey, states, DoorState.Opening);
+            AddAnimationTrack((Animation)ent.Comp.ClosingAnimation, layerKey, states, DoorState.Closing);
+            AddFinalState(ent.Comp.OpenSpriteStates, layerKey, states, DoorState.Open);
+            AddFinalState(ent.Comp.ClosedSpriteStates, layerKey, states, DoorState.Closed);
+        }
+    }
+
+    private static void AddAnimationTrack(
+        Animation animation,
+        Enum layerKey,
+        Dictionary<string, PrototypeLayerData> states,
+        DoorState doorState)
+    {
+        if (!states.TryGetValue(doorState.ToString(), out var layerData)
+            || string.IsNullOrWhiteSpace(layerData.State))
+        {
+            return;
+        }
+
+        animation.AnimationTracks.Add(new AnimationTrackSpriteFlick
+        {
+            LayerKey = layerKey,
+            KeyFrames =
+            {
+                new AnimationTrackSpriteFlick.KeyFrame(layerData.State, 0f),
+            },
+        });
+    }
+
+    private static void AddFinalState(
+        List<(Enum Layer, string State)> finalStates,
+        Enum layerKey,
+        Dictionary<string, PrototypeLayerData> states,
+        DoorState doorState)
+    {
+        if (states.TryGetValue(doorState.ToString(), out var layerData)
+            && !string.IsNullOrWhiteSpace(layerData.State))
+        {
+            finalStates.Add((layerKey, layerData.State));
+        }
     }
 
     private void OnAnimationCompleted(Entity<DoorComponent> ent, ref AnimationCompletedEvent args)
@@ -74,6 +151,7 @@ public sealed partial class DoorSystem : SharedDoorSystem
 
                 foreach (var (layer, layerState) in ent.Comp.OpenSpriteStates)
                 {
+                    _sprite.LayerSetAutoAnimated((ent.Owner, sprite), layer, true);
                     _sprite.LayerSetRsiState((ent.Owner, sprite), layer, layerState);
                 }
 
@@ -82,6 +160,7 @@ public sealed partial class DoorSystem : SharedDoorSystem
 
                 foreach (var (layer, layerState) in ent.Comp.ClosedSpriteStates)
                 {
+                    _sprite.LayerSetAutoAnimated((ent.Owner, sprite), layer, true);
                     _sprite.LayerSetRsiState((ent.Owner, sprite), layer, layerState);
                 }
 
@@ -102,16 +181,18 @@ public sealed partial class DoorSystem : SharedDoorSystem
         if (AppearanceSystem.TryGetData<string>(entity, PaintableVisuals.Prototype, out var prototype, args.Component))
             UpdateSpriteLayers((entity.Owner, args.Sprite), prototype);
 
-        // We are checking beforehand since some doors may not have an emagging visual layer, and we don't want LayerSetVisible to throw an error.
-        if (_sprite.TryGetLayer(entity.Owner, DoorVisualLayers.BaseEmagging, out var emaggingLayer, false))
+        // GenericVisualizer owns visibility. This system only restarts the one-shot effect on its rising edge.
+        if (_sprite.TryGetLayer(entity.Owner, DoorVisualLayers.BaseEmagging, out _, false))
         {
-            if (isEmagging && !emaggingLayer.Visible)
+            if (isEmagging && _emaggingVisuals.Add(entity))
             {
                 _sprite.LayerSetAnimationTime((entity.Owner, args.Sprite), DoorVisualLayers.BaseEmagging, 0f);
                 _sprite.LayerSetAutoAnimated((entity.Owner, args.Sprite), DoorVisualLayers.BaseEmagging, true);
             }
-
-            _sprite.LayerSetVisible(entity.Owner, DoorVisualLayers.BaseEmagging, isEmagging);
+            else if (!isEmagging)
+            {
+                _emaggingVisuals.Remove(entity);
+            }
         }
 
         UpdateAppearanceForDoorState(entity, args.Sprite, state);

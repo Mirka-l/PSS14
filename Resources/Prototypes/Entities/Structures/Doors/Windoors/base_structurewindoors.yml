@@ -37,10 +37,13 @@
       shader: unshaded
       visible: false
     - map: ["enum.WeldableLayers.BaseWelded"]
+      visible: false
     - map: ["enum.DoorVisualLayers.BaseBolted"]
       shader: unshaded
+      visible: false
     - map: ["enum.DoorVisualLayers.BaseEmergencyAccess"]
       shader: unshaded
+      visible: false
     - map: ["enum.WiresVisualLayers.MaintenancePanel"]
     - map: ["enum.DoorVisualLayers.BaseDeny"]
       shader: unshaded
@@ -155,6 +158,21 @@
           Closing: { state: closing }
           Open: { state: open }
           Opening: { state: opening }
+        enum.WeldableLayers.BaseWelded:
+          Closed: { state: closed }
+          Closing: { state: closing }
+          Open: { state: open }
+          Opening: { state: opening }
+        enum.DoorVisualLayers.BaseBolted:
+          Closed: { state: closed }
+          Closing: { state: closing }
+          Open: { state: open }
+          Opening: { state: opening }
+        enum.DoorVisualLayers.BaseEmergencyAccess:
+          Closed: { state: closed }
+          Closing: { state: closing }
+          Open: { state: open }
+          Opening: { state: opening }
         enum.WiresVisualLayers.MaintenancePanel:
           Closed: { state: closed }
           Closing: { state: closing }
@@ -166,6 +184,34 @@
           False: { visible: False }
       enum.WiresVisuals.MaintenancePanelState:
         enum.WiresVisualLayers.MaintenancePanel:
+          True: { visible: true }
+          False: { visible: false }
+      enum.WeldableVisuals.IsWelded:
+        enum.WeldableLayers.BaseWelded:
+          True: { visible: true }
+          False: { visible: false }
+      enum.DoorVisuals.PoweredVisible:
+        enum.DoorVisualLayers.BasePowered:
+          True: { visible: true }
+          False: { visible: false }
+      enum.DoorVisuals.AccessGrantedVisible:
+        enum.DoorVisualLayers.BaseAccessGranted:
+          True: { visible: true }
+          False: { visible: false }
+      enum.DoorVisuals.BoltedVisible:
+        enum.DoorVisualLayers.BaseBolted:
+          True: { visible: true }
+          False: { visible: false }
+      enum.DoorVisuals.EmergencyAccessVisible:
+        enum.DoorVisualLayers.BaseEmergencyAccess:
+          True: { visible: true }
+          False: { visible: false }
+      enum.DoorVisuals.DenyVisible:
+        enum.DoorVisualLayers.BaseDeny:
+          True: { visible: true }
+          False: { visible: false }
+      enum.DoorVisuals.Emagging:
+        enum.DoorVisualLayers.BaseEmagging:
           True: { visible: true }
           False: { visible: false }
   - type: ElectrocutionHUDVisuals
@@ -200,10 +246,13 @@
       shader: unshaded
       visible: false
     - map: [ "enum.WeldableLayers.BaseWelded" ]
+      visible: false
     - map: [ "enum.DoorVisualLayers.BaseBolted" ]
       shader: unshaded
+      visible: false
     - map: [ "enum.DoorVisualLayers.BaseEmergencyAccess" ]
       shader: unshaded
+      visible: false
     - map: [ "enum.WiresVisualLayers.MaintenancePanel" ]
       visible: false
     - map: [ "enum.DoorVisualLayers.BaseDeny" ]

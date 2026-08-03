@@ -92,6 +92,14 @@
         enum.FirelockVisualLayersTemperature.Base:
           True: { visible: true }
           False: { visible: false }
+      enum.FirelockVisuals.Warning:
+        enum.FirelockVisualLayers.Warning:
+          True: { visible: true }
+          False: { visible: false }
+      enum.DoorVisuals.BoltedVisible:
+        enum.DoorVisualLayers.BaseBolted:
+          True: { visible: true }
+          False: { visible: false }
       enum.WiresVisuals.MaintenancePanelState:
         enum.WiresVisualLayers.MaintenancePanel:
           True: { visible: true }
