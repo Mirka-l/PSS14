@@ -116,7 +116,6 @@
   - type: Airlock
     keepOpenIfClicked: true
     openPanelVisible: true
-    denyAnimationTime: 0.4
     openAccessGrantedVisible: true
     # needed so that windoors loop between closing and reopening less often even though they don't crush
     safety: true
@@ -204,10 +203,6 @@
           False: { visible: false }
       enum.DoorVisuals.EmergencyAccessVisible:
         enum.DoorVisualLayers.BaseEmergencyAccess:
-          True: { visible: true }
-          False: { visible: false }
-      enum.DoorVisuals.DenyVisible:
-        enum.DoorVisualLayers.BaseDeny:
           True: { visible: true }
           False: { visible: false }
       enum.DoorVisuals.Emagging:

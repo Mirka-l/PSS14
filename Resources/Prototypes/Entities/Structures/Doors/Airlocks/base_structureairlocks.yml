@@ -127,10 +127,6 @@
         enum.DoorVisualLayers.BaseEmergencyAccess:
           True : { visible: true }
           False: { visible: false }
-      enum.DoorVisuals.DenyVisible:
-        enum.DoorVisualLayers.BaseDeny:
-          True : { visible: true }
-          False: { visible: false }
       enum.DoorVisuals.Emagging:
         enum.DoorVisualLayers.BaseEmagging:
           True : { visible: true }

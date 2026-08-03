@@ -1,9 +1,11 @@
+using Content.Shared.Doors;
 using Content.Shared.Doors.Components;
 using Content.Shared.Doors.Systems;
 using Content.Shared.SprayPainter.Prototypes;
 using Robust.Client.Animations;
 using Robust.Client.GameObjects;
 using Robust.Shared.Reflection;
+using Robust.Shared.Timing;
 
 namespace Content.Client.Doors;
 
@@ -13,19 +15,25 @@ public sealed partial class DoorSystem : SharedDoorSystem
     [Dependency] private IReflectionManager _reflection = default!;
     [Dependency] private SpriteSystem _sprite = default!;
 
+    private const string DenyAnimationKey = "door_animation_deny";
+
     private readonly HashSet<EntityUid> _emaggingVisuals = new();
+    private readonly Dictionary<EntityUid, GameTick> _predictedDenyVisuals = new();
 
     public override void Initialize()
     {
         base.Initialize();
         SubscribeLocalEvent<DoorComponent, AppearanceChangeEvent>(OnAppearanceChange);
         SubscribeLocalEvent<DoorComponent, AnimationCompletedEvent>(OnAnimationCompleted);
+        SubscribeLocalEvent<DoorComponent, DoorDenyVisualEvent>(OnDenyVisual);
+        SubscribeNetworkEvent<DoorDenyVisualMessage>(OnDenyVisualMessage);
     }
 
     protected override void OnRemove(Entity<DoorComponent> ent, ref ComponentRemove args)
     {
         base.OnRemove(ent, ref args);
         _emaggingVisuals.Remove(ent);
+        _predictedDenyVisuals.Remove(ent);
     }
 
     protected override void OnComponentInit(Entity<DoorComponent> ent, ref ComponentInit args)
@@ -139,6 +147,22 @@ public sealed partial class DoorSystem : SharedDoorSystem
 
     private void OnAnimationCompleted(Entity<DoorComponent> ent, ref AnimationCompletedEvent args)
     {
+        if (args.Key == DenyAnimationKey)
+        {
+            if (TryComp<SpriteComponent>(ent, out var denySprite)
+                && _sprite.TryGetLayer((ent.Owner, denySprite), DoorVisualLayers.BaseDeny, out _, false))
+            {
+                _sprite.LayerSetVisible((ent.Owner, denySprite), DoorVisualLayers.BaseDeny, false);
+                _sprite.LayerSetAutoAnimated((ent.Owner, denySprite), DoorVisualLayers.BaseDeny, true);
+
+                AppearanceSystem.TryGetData<bool>(ent, DoorVisuals.PoweredVisible, out var poweredVisible);
+                if (_sprite.TryGetLayer((ent.Owner, denySprite), DoorVisualLayers.BasePowered, out _, false))
+                    _sprite.LayerSetVisible((ent.Owner, denySprite), DoorVisualLayers.BasePowered, poweredVisible);
+            }
+
+            return;
+        }
+
         if (args.Key != DoorComponent.OpenKey && args.Key != DoorComponent.CloseKey)
             return;
 
@@ -260,14 +284,67 @@ public sealed partial class DoorSystem : SharedDoorSystem
                 _animationSystem.Play(entity, (Animation)entity.Comp.ClosingAnimation, DoorComponent.CloseKey);
 
                 return;
-            case DoorState.Denying:
-                if (_animationSystem.HasRunningAnimation(entity, DoorComponent.DenyKey))
-                    return;
-
-                _animationSystem.Play(entity, (Animation)entity.Comp.DenyingAnimation, DoorComponent.DenyKey);
-
-                return;
         }
+    }
+
+    private void OnDenyVisual(Entity<DoorComponent> ent, ref DoorDenyVisualEvent args)
+    {
+        if (!GameTiming.IsFirstTimePredicted)
+            return;
+
+        _predictedDenyVisuals[ent] = args.Tick;
+        PlayDenyVisual(ent);
+    }
+
+    private void OnDenyVisualMessage(DoorDenyVisualMessage args)
+    {
+        var uid = GetEntity(args.Door);
+        if (_predictedDenyVisuals.Remove(uid, out var predictedTick)
+            && predictedTick == args.Tick)
+        {
+            return;
+        }
+
+        if (TryComp<DoorComponent>(uid, out var door))
+            PlayDenyVisual((uid, door));
+    }
+
+    private void PlayDenyVisual(Entity<DoorComponent> ent)
+    {
+        if (!TryComp<SpriteComponent>(ent, out var sprite)
+            || !TryComp<AnimationPlayerComponent>(ent, out var animationPlayer)
+            || !_sprite.TryGetLayer((ent.Owner, sprite), DoorVisualLayers.BaseDeny, out var layer, false)
+            || layer.ActualRsi == null
+            || !layer.ActualRsi.TryGetState(layer.State, out var state)
+            || state.AnimationLength <= 0f)
+        {
+            return;
+        }
+
+        if (_animationSystem.HasRunningAnimation(animationPlayer, DenyAnimationKey))
+            _animationSystem.Stop(ent.Owner, animationPlayer, DenyAnimationKey);
+
+        var animation = new Animation
+        {
+            Length = TimeSpan.FromSeconds(state.AnimationLength),
+            AnimationTracks =
+            {
+                new AnimationTrackSpriteFlick
+                {
+                    LayerKey = DoorVisualLayers.BaseDeny,
+                    KeyFrames =
+                    {
+                        new AnimationTrackSpriteFlick.KeyFrame(state.StateId, 0f),
+                    },
+                },
+            },
+        };
+
+        if (_sprite.TryGetLayer((ent.Owner, sprite), DoorVisualLayers.BasePowered, out _, false))
+            _sprite.LayerSetVisible((ent.Owner, sprite), DoorVisualLayers.BasePowered, false);
+
+        _sprite.LayerSetVisible((ent.Owner, sprite), DoorVisualLayers.BaseDeny, true);
+        _animationSystem.Play((ent.Owner, animationPlayer), animation, DenyAnimationKey);
     }
 
     private void UpdateSpriteLayers(Entity<SpriteComponent> sprite, string targetProto)

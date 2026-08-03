@@ -24,6 +24,7 @@ using Robust.Shared.Audio.Systems;
 using Robust.Shared.Network;
 using Robust.Shared.Map.Components;
 using Robust.Shared.Prototypes;
+using Robust.Shared.Player;
 
 namespace Content.Shared.Doors.Systems;
 
@@ -214,11 +215,6 @@ public abstract partial class SharedDoorSystem : EntitySystem
                 door.NextStateChange = GameTiming.CurTime + door.CloseTimeOne;
                 break;
 
-            case DoorState.Denying:
-                _activeDoors.Add((uid, door));
-                door.NextStateChange = GameTiming.CurTime + door.DenyDuration;
-                break;
-
             case DoorState.Open:
                 door.Partial = false;
                 if (door.NextStateChange == null)
@@ -320,6 +316,14 @@ public abstract partial class SharedDoorSystem : EntitySystem
         if (ev.Cancelled)
             return;
 
+        var tick = GameTiming.CurTick;
+        if (_net.IsClient)
+            RaiseLocalEvent(uid, new DoorDenyVisualEvent(tick));
+        else
+            RaiseNetworkEvent(
+                new DoorDenyVisualMessage(GetNetEntity(uid), tick),
+                Filter.Pvs(uid, entityManager: EntityManager));
+
         var audioParams = door.DenySound?.Params ?? AudioParams.Default;
         audioParams = audioParams.AddVolume(-3);
 
@@ -334,10 +338,8 @@ public abstract partial class SharedDoorSystem : EntitySystem
         if (!Resolve(uid, ref door))
             return false;
 
-        if (door.State is DoorState.Closed or DoorState.Denying)
-        {
-            return TryOpen(uid, door, user, predicted, quiet: door.State == DoorState.Denying);
-        }
+        if (door.State == DoorState.Closed)
+            return TryOpen(uid, door, user, predicted);
 
         if (door.State == DoorState.Open)
         {
@@ -655,13 +657,13 @@ public abstract partial class SharedDoorSystem : EntitySystem
         if (!door.BumpOpen)
             return;
 
-        if (door.State is not (DoorState.Closed or DoorState.Denying))
+        if (door.State != DoorState.Closed)
             return;
 
         var otherUid = args.OtherEntity;
 
         if (Tags.HasTag(otherUid, DoorBumpTag))
-            TryOpen(uid, door, otherUid, quiet: door.State == DoorState.Denying, predicted: true);
+            TryOpen(uid, door, otherUid, predicted: true);
     }
     #endregion
 
@@ -862,11 +864,6 @@ public abstract partial class SharedDoorSystem : EntitySystem
                 else
                     OnPartialClose(ent, door);
 
-                break;
-
-            case DoorState.Denying:
-                // Finish denying entry and return to the closed state.
-                SetState(ent, DoorState.Closed, door);
                 break;
 
             case DoorState.Open:

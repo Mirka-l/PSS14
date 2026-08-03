@@ -61,12 +61,6 @@ public sealed partial class DoorComponent : Component
     [DataField]
     public TimeSpan OpenTimeTwo = TimeSpan.FromSeconds(0.2f);
 
-    /// <summary>
-    ///     Interval between deny sounds & visuals;
-    /// </summary>
-    [DataField]
-    public TimeSpan DenyDuration = TimeSpan.FromSeconds(0.45f);
-
     [DataField]
     public TimeSpan EmagDuration = TimeSpan.FromSeconds(0.8f);
 
@@ -157,11 +151,6 @@ public sealed partial class DoorComponent : Component
     public const string CloseKey = "door_animation_close";
 
     /// <summary>
-    /// The key used when playing door deny animations.
-    /// </summary>
-    public const string DenyKey = "door_animation_deny";
-
-    /// <summary>
     /// The sprite state used for the door when it's open.
     /// </summary>
     [DataField]
@@ -220,11 +209,6 @@ public sealed partial class DoorComponent : Component
     /// The animation used when the door closes.
     /// </summary>
     public object ClosingAnimation = default!;
-
-    /// <summary>
-    /// The animation used when the door denies access.
-    /// </summary>
-    public object DenyingAnimation = default!;
 
     #endregion Graphics
 
@@ -307,7 +291,6 @@ public enum DoorState : byte
     Closing,
     Open,
     Opening,
-    Denying,
 }
 
 [Serializable, NetSerializable]
@@ -329,7 +312,6 @@ public enum DoorVisuals : byte
     AccessGrantedVisible,
     BoltedVisible,
     EmergencyAccessVisible,
-    DenyVisible,
 }
 
 public enum DoorVisualLayers : byte

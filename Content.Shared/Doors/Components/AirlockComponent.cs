@@ -101,12 +101,6 @@ public sealed partial class AirlockComponent : Component
     public bool EmergencyAccessLayer = true;
 
     /// <summary>
-    /// How long the animation played when the airlock denies access is in seconds.
-    /// </summary>
-    [DataField]
-    public float DenyAnimationTime = 0.3f;
-
-    /// <summary>
     /// Pry modifier for a bolted airlock.
     /// Currently only zombies can pry bolted airlocks.
     /// </summary>

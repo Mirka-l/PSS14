@@ -250,28 +250,21 @@ public abstract partial class SharedAirlockSystem : EntitySystem
             && ent.Comp.EmergencyAccessLayer
             && ent.Comp.EmergencyAccess
             && !boltedVisible;
-        var denyVisible = ent.Comp.Powered
-            && state == DoorState.Denying
-            && !boltedVisible
-            && !emergencyAccessVisible;
         var accessGrantedVisible = ent.Comp.Powered
             && (state == DoorState.Closing
                 || state == DoorState.Opening
                 || state == DoorState.Open && ent.Comp.OpenAccessGrantedVisible)
             && !boltedVisible
-            && !emergencyAccessVisible
-            && !denyVisible;
+            && !emergencyAccessVisible;
         var poweredVisible = ent.Comp.Powered
             && !boltedVisible
             && !emergencyAccessVisible
-            && !denyVisible
             && !accessGrantedVisible;
 
         Appearance.SetData(ent, DoorVisuals.PoweredVisible, poweredVisible, appearance);
         Appearance.SetData(ent, DoorVisuals.AccessGrantedVisible, accessGrantedVisible, appearance);
         Appearance.SetData(ent, DoorVisuals.BoltedVisible, boltedVisible, appearance);
         Appearance.SetData(ent, DoorVisuals.EmergencyAccessVisible, emergencyAccessVisible, appearance);
-        Appearance.SetData(ent, DoorVisuals.DenyVisible, denyVisible, appearance);
     }
 
     public void SetAutoCloseDelayModifier(AirlockComponent component, float value)

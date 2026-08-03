@@ -139,7 +139,6 @@ public abstract partial class SharedFirelockSystem : EntitySystem
             (TryComp<DoorBoltComponent>(uid, out var bolts) && _doorSystem.GetBoltLightsVisible((uid, bolts)));
         var warningVisible = (currentState == DoorState.Closing
                 || currentState == DoorState.Opening
-                || currentState == DoorState.Denying
                 || currentState == DoorState.Closed && firelock.IsLocked)
             && !boltedVisible;
 

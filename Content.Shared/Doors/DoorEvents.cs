@@ -1,4 +1,6 @@
 using Content.Shared.Doors.Components;
+using Robust.Shared.Serialization;
+using Robust.Shared.Timing;
 
 namespace Content.Shared.Doors
 {
@@ -81,6 +83,21 @@ namespace Content.Shared.Doors
     /// </summary>
     public sealed class BeforeDoorDeniedEvent : CancellableEntityEventArgs
     {
+    }
+
+    /// <summary>
+    /// Raised locally when a predicted access-denied visual should start.
+    /// </summary>
+    public readonly record struct DoorDenyVisualEvent(GameTick Tick);
+
+    /// <summary>
+    /// Sends an access-denied visual to clients that did not predict it locally.
+    /// </summary>
+    [Serializable, NetSerializable]
+    public sealed class DoorDenyVisualMessage(NetEntity door, GameTick tick) : EntityEventArgs
+    {
+        public NetEntity Door = door;
+        public GameTick Tick = tick;
     }
 
     /// <summary>
