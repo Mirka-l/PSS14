@@ -6,9 +6,7 @@ using Robust.Shared.Audio;
 using Robust.Shared.GameStates;
 using Robust.Shared.Prototypes;
 using Robust.Shared.Serialization;
-using Robust.Shared.Serialization.TypeSerializers.Implementations.Custom;
 using Robust.Shared.Timing;
-using DrawDepthTag = Robust.Shared.GameObjects.DrawDepth;
 
 namespace Content.Shared.Doors.Components;
 
@@ -143,75 +141,6 @@ public sealed partial class DoorComponent : Component
     public HashSet<EntityUid> CurrentlyCrushing = new();
     #endregion
 
-    #region Graphics
-
-
-    public const string OpenKey = "door_animation_open";
-
-    public const string CloseKey = "door_animation_close";
-
-    /// <summary>
-    /// The sprite state used for the door when it's open.
-    /// </summary>
-    [DataField]
-    [ViewVariables(VVAccess.ReadWrite)]
-    public string OpenSpriteState = "open";
-
-    /// <summary>
-    /// The sprite states used for the door while it's open.
-    /// </summary>
-    [ViewVariables(VVAccess.ReadOnly)]
-    public List<(Enum, string)> OpenSpriteStates = default!;
-
-    /// <summary>
-    /// The sprite state used for the door when it's closed.
-    /// </summary>
-    [DataField]
-    [ViewVariables(VVAccess.ReadWrite)]
-    public string ClosedSpriteState = "closed";
-
-    /// <summary>
-    /// The sprite states used for the door while it's closed.
-    /// </summary>
-    [ViewVariables(VVAccess.ReadOnly)]
-    public List<(Enum, string)> ClosedSpriteStates = default!;
-
-    /// <summary>
-    /// The sprite state used for the door when it's opening.
-    /// </summary>
-    [DataField]
-    public string OpeningSpriteState = "opening";
-
-    /// <summary>
-    /// The sprite state used for the door when it's closing.
-    /// </summary>
-    [DataField]
-    public string ClosingSpriteState = "closing";
-
-    /// <summary>
-    /// The length of the door's opening animation.
-    /// </summary>
-    [DataField]
-    public TimeSpan OpeningAnimationTime = TimeSpan.FromSeconds(0.8);
-
-    /// <summary>
-    /// The length of the door's closing animation.
-    /// </summary>
-    [DataField]
-    public TimeSpan ClosingAnimationTime = TimeSpan.FromSeconds(0.8);
-
-    /// <summary>
-    /// The animation used when the door opens.
-    /// </summary>
-    public object OpeningAnimation = default!;
-
-    /// <summary>
-    /// The animation used when the door closes.
-    /// </summary>
-    public object ClosingAnimation = default!;
-
-    #endregion Graphics
-
     #region Serialization
     /// <summary>
     ///     Time until next state change. Because apparently <see cref="IGameTiming.CurTime"/> might not get saved/restored.
@@ -277,11 +206,6 @@ public sealed partial class DoorComponent : Component
     [DataField]
     public bool ClickOpen = true;
 
-    [DataField(customTypeSerializer: typeof(ConstantSerializer<DrawDepthTag>))]
-    public int OpenDrawDepth = (int) DrawDepth.DrawDepth.Doors;
-
-    [DataField(customTypeSerializer: typeof(ConstantSerializer<DrawDepthTag>))]
-    public int ClosedDrawDepth = (int) DrawDepth.DrawDepth.Doors;
 }
 
 [Serializable, NetSerializable]

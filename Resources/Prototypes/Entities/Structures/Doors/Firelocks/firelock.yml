@@ -71,19 +71,14 @@
       visible: false
       shader: unshaded
       map: ["enum.FirelockVisualLayersTemperature.Base"]
+  - type: DoorVisuals
+    openDrawDepth: WallTops
+    layers:
+    - enum.DoorVisualLayers.Base
+    - enum.FirelockVisualLayers.Warning
+    - enum.WiresVisualLayers.MaintenancePanel
   - type: GenericVisualizer
     visuals:
-      enum.DoorVisuals.State:
-        enum.FirelockVisualLayers.Warning:
-          Closed: { state: closed }
-          Closing: { state: closing }
-          Open: { state: open }
-          Opening: { state: opening }
-        enum.WiresVisualLayers.MaintenancePanel:
-          Closed: { state: closed }
-          Closing: { state: closing }
-          Open: { state: open }
-          Opening: { state: opening }
       enum.FirelockVisuals.PressureWarning:
         enum.FirelockVisualLayersPressure.Base:
           True: { visible: true }
@@ -117,7 +112,6 @@
         layer:
         - AirlockLayer
   - type: Door
-    openDrawDepth: WallTops
     closeTimeOne: 0.1
     closeTimeTwo: 0.6
     openTimeOne: 0.1
@@ -134,8 +128,6 @@
       path: /Audio/Machines/airlock_close.ogg
     denySound:
       path: /Audio/Machines/airlock_deny.ogg
-    openingAnimationTime: 0.6
-    closingAnimationTime: 0.6
   - type: Weldable
     fuel: 5
     time: 3

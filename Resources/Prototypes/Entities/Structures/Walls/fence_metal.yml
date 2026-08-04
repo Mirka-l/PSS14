@@ -267,8 +267,6 @@
         - LowImpassable
   - type: InteractionOutline
   - type: Door
-    openSpriteState: door_opened
-    closedSpriteState: door_closed
     canPry: false
     occludes: false
     changeAirtight: false
@@ -279,12 +277,15 @@
     closeTimeTwo: 0
     openTimeOne: 0
     openTimeTwo: 0
-    openingAnimationTime: 0
-    closingAnimationTime: 0
     openSound:
       path: /Audio/Effects/door_open.ogg
     closeSound:
       path: /Audio/Effects/door_close.ogg
+  - type: DoorVisuals
+    openState: door_opened
+    openingState: door_opened
+    closedState: door_closed
+    closingState: door_closed
   - type: Construction
     graph: FenceMetal
     node: gate

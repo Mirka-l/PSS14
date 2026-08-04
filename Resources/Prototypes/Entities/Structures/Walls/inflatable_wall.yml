@@ -74,8 +74,6 @@
     closeTimeTwo: 0.6
     openTimeOne: 0.6
     openTimeTwo: 0.2
-    openingAnimationTime: 1.2
-    closingAnimationTime: 1.2
     occludes: false
     openSound:
       path: /Audio/Misc/zip.ogg

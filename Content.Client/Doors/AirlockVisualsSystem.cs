@@ -8,8 +8,8 @@ namespace Content.Client.Doors;
 
 /// <summary>
 /// Applies the declarative RSI configuration from <see cref="AirlockVisualsComponent"/>
-/// to the mapped sprite layers. Runtime state and visibility are handled separately
-/// by GenericVisualizer.
+/// to the mapped sprite layers. Runtime state is handled by <see cref="DoorVisualsSystem"/>,
+/// while independent visibility is handled by GenericVisualizer.
 /// </summary>
 public sealed partial class AirlockVisualsSystem : EntitySystem
 {

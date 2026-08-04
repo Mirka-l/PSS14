@@ -105,8 +105,6 @@
       board: !type:Container
   - type: Door
     canCrush: false
-    openingAnimationTime: 0.9
-    closingAnimationTime: 0.9
     openSound:
       path: /Audio/Machines/windoor_open.ogg
     closeSound:
@@ -144,39 +142,17 @@
     panel: { sprite: Structures/Doors/Airlocks/Overlays/Windoor/panel.rsi, state: closed }
     deny: { sprite: Structures/Doors/Airlocks/Overlays/Windoor/access_deny.rsi, state: closed }
     emagging: { sprite: Structures/Doors/Airlocks/Overlays/Windoor/effects.rsi, state: sparks }
+  - type: DoorVisuals
+    layers:
+    - enum.DoorVisualLayers.Base
+    - enum.DoorVisualLayers.BasePowered
+    - enum.DoorVisualLayers.BaseAccessGranted
+    - enum.WeldableLayers.BaseWelded
+    - enum.DoorVisualLayers.BaseBolted
+    - enum.DoorVisualLayers.BaseEmergencyAccess
+    - enum.WiresVisualLayers.MaintenancePanel
   - type: GenericVisualizer
     visuals:
-      enum.DoorVisuals.State:
-        enum.DoorVisualLayers.BasePowered:
-          Closed: { state: closed }
-          Closing: { state: closing }
-          Open: { state: open }
-          Opening: { state: opening }
-        enum.DoorVisualLayers.BaseAccessGranted:
-          Closed: { state: closed }
-          Closing: { state: closing }
-          Open: { state: open }
-          Opening: { state: opening }
-        enum.WeldableLayers.BaseWelded:
-          Closed: { state: closed }
-          Closing: { state: closing }
-          Open: { state: open }
-          Opening: { state: opening }
-        enum.DoorVisualLayers.BaseBolted:
-          Closed: { state: closed }
-          Closing: { state: closing }
-          Open: { state: open }
-          Opening: { state: opening }
-        enum.DoorVisualLayers.BaseEmergencyAccess:
-          Closed: { state: closed }
-          Closing: { state: closing }
-          Open: { state: open }
-          Opening: { state: opening }
-        enum.WiresVisualLayers.MaintenancePanel:
-          Closed: { state: closed }
-          Closing: { state: closing }
-          Open: { state: open }
-          Opening: { state: opening }
       enum.ElectrifiedVisuals.ShowSparks:
         enum.ElectrifiedLayers.Sparks:
           True: { visible: True }

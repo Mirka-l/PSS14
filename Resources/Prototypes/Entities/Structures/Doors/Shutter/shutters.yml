@@ -43,16 +43,12 @@
     tags:
     - ForceNoFixRotations # Don't want the fixrotations command to target these
   - type: Door
-    openDrawDepth: BlastDoors
-    closedDrawDepth: BlastDoors
     bumpOpen: false
     clickOpen: false
     closeTimeOne: 0.2
     closeTimeTwo: 1.2
     openTimeOne: 1.2
     openTimeTwo: 0.2
-    openingAnimationTime: 1.4
-    closingAnimationTime: 1.4
     crushDamage:
       types:
         Blunt: 5 # getting shutters closed on you probably doesn't hurt that much
@@ -60,6 +56,9 @@
       path: /Audio/Machines/shutter.ogg
     closeSound:
       path: /Audio/Machines/shutter.ogg
+  - type: DoorVisuals
+    openDrawDepth: BlastDoors
+    closedDrawDepth: BlastDoors
   - type: Weldable
     time: 3
   - type: Appearance
