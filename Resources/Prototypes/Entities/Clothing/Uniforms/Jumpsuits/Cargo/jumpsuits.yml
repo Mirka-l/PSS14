@@ -1,0 +1,17 @@
+- type: entity
+  parent: [ClothingUniformBase, ClothingUniformFoldableBase]
+  id: ClothingUniformJumpsuitCargo
+  name: cargo tech jumpsuit
+  description: A sturdy jumpsuit, issued to members of the Cargo department.
+  components:
+  - type: Sprite
+    sprite: Clothing/Uniforms/_Paradise/Jumpsuit/cargotech.rsi
+
+- type: entity
+  parent: [ClothingUniformBase, ClothingUniformFoldableBase]
+  id: ClothingUniformJumpsuitCargoOveralls
+  name: cargo tech jumpsuit overalls
+  description: A sturdy jumpsuit overalls, issued to members of the Cargo department.
+  components:
+  - type: Sprite
+    sprite: Clothing/Uniforms/_Paradise/Jumpsuit/cargotech_overalls.rsi
